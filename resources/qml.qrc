@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>fonts/Roboto-Black.ttf</file>
+    </qresource>
+</RCC>
