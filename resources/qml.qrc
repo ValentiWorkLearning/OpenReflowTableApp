@@ -2,5 +2,8 @@
     <qresource prefix="/">
         <file>main.qml</file>
         <file>fonts/Roboto-Black.ttf</file>
+        <file>SelectionView.qml</file>
+        <file>PresetsView.qml</file>
+        <file>ReflowView.qml</file>
     </qresource>
 </RCC>
