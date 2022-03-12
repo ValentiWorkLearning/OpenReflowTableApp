@@ -26,6 +26,7 @@ ApplicationWindow  {
         id: presetsView
         PresetsView
         {
+            onRequestBackToHome: ovenStackView.pop(null)
         }
     }
     Component
@@ -33,9 +34,7 @@ ApplicationWindow  {
         id:reflowView
         ReflowView
         {
-
-            onRequestBackToHome:
-                ovenStackView.pop(null)
+            onRequestBackToHome: ovenStackView.pop(null)
         }
 
     }
