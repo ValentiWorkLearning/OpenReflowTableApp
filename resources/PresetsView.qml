@@ -17,21 +17,10 @@ Item {
             id: reflowRibbonLayout
             Layout.fillWidth: true
 
-            Column{
-                Label
+                BackButton
                 {
-                    text: qsTr("Back")
-                }
-                Button
-                {
-                    id: backToHome
-                    width: 48
-                    height: 48
-                    text: qsTr("<")
-
                     onClicked: requestBackToHome();
                 }
-            }
         }
         ListModel {
             id: testModel
@@ -51,8 +40,25 @@ Item {
             Layout.fillWidth: true
 
             model: testModel
-            delegate: Label {
-                text: preset_name
+            delegate: RowLayout {
+                width: ListView.view.width
+                implicitHeight: 48
+                Label{
+                    text: preset_name
+                    elide: Text.ElideRight;
+                }
+                Button
+                {
+                    id: setupPresetButton
+                    width: 48
+                    height: 48
+                    text: qsTr("EDIT")
+
+                    hoverEnabled: true
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Edit preset")
+
+                }
             }
         }
     }

@@ -17,63 +17,48 @@ Item {
             id: reflowRibbonLayout
             Layout.fillWidth: true
 
-            Column{
-                Label
+
+            BackButton
+            {
+                onClicked: requestBackToHome();
+            }
+
+            ComboBox
+            {
+                id: presetsCombobox
+                implicitContentWidthPolicy: ComboBox.WidestText
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Available Presets")
+
+                model: ["Preset Name 1", "Preset Name 2", "Preset Name 3"]
+            }
+
+
+            Row{
+                spacing: 8
+                Button
                 {
-                    text: qsTr("Back")
+                    id: startReflowButton
+                    text: qsTr("START")
+                    hoverEnabled: true
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Start reflow process")
+                    Material.background: Material.Green
                 }
                 Button
                 {
-                    id: backToHome
-                    width: 48
-                    height: 48
-                    text: qsTr("<")
+                    id: stopReflowButton
+                    text: qsTr("STOP")
 
-                    onClicked: requestBackToHome();
-                }
-            }
-            Item
-            {
-                Layout.fillWidth: true
-            }
-            Column{
-                id: presetsLayout
-                Layout.alignment: Qt.AlignRight
-                Label
-                {
-                    text: qsTr("Available Presets")
-                }
-                ComboBox
-                {
-                    id: presetsCombobox
-                    implicitContentWidthPolicy: ComboBox.WidestText
-                    model: ["Preset Name 1", "Preset Name 2", "Preset Name 3"]
+                    hoverEnabled: true
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Stop reflow process")
+
+                    Material.background: Material.Red
                 }
             }
 
-            Column{
-                Layout.alignment: Qt.AlignRight
-                Label
-                {
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: qsTr("Reflow control")
-                }
-                Row{
-                    spacing: 8
-                    Button
-                    {
-                        id: startReflowButton
-                        text: qsTr("START")
-                        Material.background: Material.Green
-                    }
-                    Button
-                    {
-                        id: stopReflowButton
-                        text: qsTr("STOP")
-                        Material.background: Material.Red
-                    }
-                }
-            }
         }
 
         ChartView {
