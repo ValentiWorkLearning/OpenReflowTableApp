@@ -1,6 +1,7 @@
-#include <application/application.h>
-
 #include <QQmlContext>
+#include <application/application.h>
+#include <application/edit_popup_mode.h>
+#include <reflow_rest_client/reflow_client.hpp>
 
 namespace AppSetup
 {
@@ -11,10 +12,13 @@ class App::AppImpl
 public:
     void registerTypes()
     {
+        EditPopupMode::registerEditPopupModeEnum();
     }
 
     void addContextProperties(QQmlApplicationEngine& _qmlEngine)
     {
+        m_restClient.testPingPongConnection();
+        m_restClient.createNewPreset("SMT9603005-38");
         // _qmlEngine.rootContext()->setContextProperty(
         //     "testingDocumentsModel", m_testingDocumentsModel.get());
         // _qmlEngine.rootContext()->setContextProperty("logsDataModel", m_logsDataModel.get());
@@ -30,6 +34,7 @@ public:
 
 private:
 private:
+    Reflow::Client::ReflowRestClient m_restClient;
 };
 
 App::App() : m_pAppImpl{std::make_unique<App::AppImpl>()}

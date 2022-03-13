@@ -1,10 +1,20 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import app.edit_popup.mode 1.0
 
 Item {
 
     signal requestBackToHome;
+
+
+    Loader
+    {
+        id:addPresetPopupLoader;
+        onLoaded:
+            item.open();
+    }
+
 
     ColumnLayout
     {
@@ -17,10 +27,38 @@ Item {
             id: reflowRibbonLayout
             Layout.fillWidth: true
 
-                BackButton
+            BackButton
+            {
+                onClicked: requestBackToHome();
+            }
+
+            Button
+            {
+                id:createNewPreset
+                hoverEnabled: true
+                text: qsTr("+")
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Add new preset")
+                onClicked:
                 {
-                    onClicked: requestBackToHome();
+                    addPresetPopupLoader.setSource(
+                                "qrc:/EditPresetPopup.qml",
+                                {
+                                    popupMode:EditPopupMode.ADD_NEW
+                                }
+                                )
                 }
+            }
+
+            Connections
+            {
+                target: addPresetPopupLoader.item;
+                function addingPresetCompleted(presetName)
+                {
+                    console.log(`On adding new preset completed:${suiteName}`)
+                    addPresetPopupLoader.item.close();
+                }
+            }
         }
         ListModel {
             id: testModel

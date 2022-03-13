@@ -6,5 +6,6 @@
         <file>PresetsView.qml</file>
         <file>ReflowView.qml</file>
         <file>BackButton.qml</file>
+        <file>EditPresetPopup.qml</file>
     </qresource>
 </RCC>

@@ -73,6 +73,9 @@ find_package(spdlog REQUIRED)
 
 add_subdirectory(3rdparty)
 
+#https://stackoverflow.com/questions/55870281/how-to-use-find-package-on-a-package-added-from-top-level-add-subdirectory
+
+
 option(USE_QTQUICKCOMPILED_RESOURCES OFF)
 
 if(${USE_QTQUICKCOMPILED_RESOURCES})
@@ -120,6 +123,7 @@ target_link_libraries(OpenOvenApp
   )
 
 add_subdirectory(application)
+add_subdirectory(rest_client)
 
 target_compile_features(
     OpenOvenApp

@@ -4,13 +4,14 @@ target_sources(
     application
     PRIVATE
     application.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/inc/application/edit_popup_mode.h
 )
 
 target_include_directories(
     application
     PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/inc
-    ${CMAKE_CURRENT_LIST_DIR}/inc/app
+    ${CMAKE_CURRENT_LIST_DIR}/inc/application
 )
 
 target_link_libraries(
@@ -20,4 +21,6 @@ target_link_libraries(
     Qt6::Core
     PRIVATE
     tl::expected
+    reflow_rest_client
 )
+target_compile_features(application PUBLIC cxx_std_20)

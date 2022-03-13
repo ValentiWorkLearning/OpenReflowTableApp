@@ -7,3 +7,7 @@ set(BUILD_REDIS CACHE BOOL OFF)
 set(BUILD_BROTLI CACHE BOOL OFF)
 
 add_subdirectory(drogon)
+
+set(QCORO_BUILD_EXAMPLES CACHE BOOL OFF)
+set(USE_QT_VERSION 6)
+add_subdirectory(qcoro)
