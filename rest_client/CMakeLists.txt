@@ -1,4 +1,4 @@
-add_library(reflow_rest_client STATIC reflow_client.cpp)
+add_library(reflow_rest_client STATIC ${CMAKE_CURRENT_LIST_DIR}/inc/reflow_rest_client/reflow_client.hpp reflow_client.cpp)
 
 target_include_directories(
     reflow_rest_client

@@ -1,28 +1,37 @@
 #include <QQmlContext>
 #include <application/application.h>
 #include <application/edit_popup_mode.h>
+#include <presetslistmodel.h>
 #include <reflow_rest_client/reflow_client.hpp>
 
 namespace AppSetup
 {
 
-class App::AppImpl
+class App::AppImpl : public QObject
 {
-
+    Q_OBJECT
+public:
+    Q_PROPERTY(PresetsListModel* presetsModel READ getPresetsModel NOTIFY presetsModelChanged)
 public:
     void registerTypes()
     {
-        EditPopupMode::registerEditPopupModeEnum();
+        EditPopupModeNs::registerEditPopupModeEnum();
+        PresetsListModel::registerQmlType();
     }
 
     void addContextProperties(QQmlApplicationEngine& _qmlEngine)
     {
         m_restClient = std::make_shared<Reflow::Client::ReflowRestClient>("localhost:8086");
         m_restClient->testPingPongConnection();
-        m_restClient->createNewPreset("SMT9603005-38");
-        // _qmlEngine.rootContext()->setContextProperty(
-        //     "testingDocumentsModel", m_testingDocumentsModel.get());
-        // _qmlEngine.rootContext()->setContextProperty("logsDataModel", m_logsDataModel.get());
+        m_presetsModel = std::make_unique<PresetsListModel>(m_restClient);
+
+        _qmlEngine.setObjectOwnership(m_presetsModel.get(), QQmlEngine::CppOwnership);
+
+        qmlRegisterSingletonType<App::AppImpl>(
+            "app.root_model", 1, 0, "AppModel", [this](QQmlEngine* engine, QJSEngine*) -> QObject* {
+                engine->setObjectOwnership(this, QQmlEngine::CppOwnership);
+                return this;
+            });
     }
 
     void initAppHandlers()
@@ -32,9 +41,18 @@ public:
     void cleanupApplication()
     {
     }
+signals:
+
+    void presetsModelChanged();
 
 private:
+    PresetsListModel* getPresetsModel() const
+    {
+        return m_presetsModel.get();
+    }
+
 private:
+    std::unique_ptr<PresetsListModel> m_presetsModel;
     std::shared_ptr<Reflow::Client::ReflowRestClient> m_restClient;
 };
 
@@ -71,3 +89,5 @@ void App::cleanupApplication()
 }
 
 } // namespace AppSetup
+
+#include "application.moc"

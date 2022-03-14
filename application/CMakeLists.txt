@@ -22,5 +22,6 @@ target_link_libraries(
     PRIVATE
     tl::expected
     reflow_rest_client
+    presets_model
 )
 target_compile_features(application PUBLIC cxx_std_20)

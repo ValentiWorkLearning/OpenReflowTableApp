@@ -16,14 +16,13 @@ static constexpr std::string_view pingPongUrlEndpoint =
     "http://{}/api/v1/ReflowController/ping-pong";
 static constexpr std::string_view createPresetEndpoint = "http://{}/api/v1/ReflowController/preset";
 static constexpr std::string_view addPresetStagesEndpoint =
-    "http://{1}/api/v1/ReflowController/preset/{2}";
+    "http://{}/api/v1/ReflowController/preset/{}";
 
-static constexpr std::string_view allPresetsEndpoint = "http://{1}/api/v1/ReflowController/presets";
+static constexpr std::string_view allPresetsEndpoint = "http://{}/api/v1/ReflowController/presets";
 
-static constexpr std::string_view commandsEndpoint = "http://{1}/api/v1/ReflowController/command";
+static constexpr std::string_view commandsEndpoint = "http://{}/api/v1/ReflowController/command";
 
-static constexpr std::string_view regulatorEndpoint =
-    "http://{1}/api/v1/ReflowController/regulator";
+static constexpr std::string_view regulatorEndpoint = "http://{}/api/v1/ReflowController/regulator";
 
 namespace Reflow::Commands
 {
@@ -32,19 +31,43 @@ static constexpr std::string_view kStop = "stop";
 static constexpr std::string_view kSelectPreset = "select-preset";
 } // namespace Reflow::Commands
 
+struct NamHolder
+{
+
+    static NamHolder& Instance()
+    {
+        static NamHolder holder;
+        return holder;
+    }
+
+public:
+    std::shared_ptr<QNetworkAccessManager> getNam()
+    {
+        return m_networkAccessManager;
+    }
+
+private:
+    NamHolder() = default;
+
+private:
+    std::shared_ptr<QNetworkAccessManager> m_networkAccessManager =
+        std::make_shared<QNetworkAccessManager>();
+};
+
 namespace Reflow::Client
 {
 class ReflowRestClient::ReflowRestClientImpl
 {
 public:
-    ReflowRestClientImpl(const std::string& serverUrlBase) : m_serverUrlBase{serverUrlBase}
+    ReflowRestClientImpl(const std::string& serverUrlBase)
+        : m_serverUrlBase{serverUrlBase}, m_nam{NamHolder::Instance().getNam()}
     {
     }
 
 public:
     QCoro::Task<> testPingPongConnection()
     {
-        auto* pReply = co_await m_nam.get(QNetworkRequest{getFormattedUrl(pingPongUrlEndpoint)});
+        auto* pReply = co_await m_nam->get(QNetworkRequest{getFormattedUrl(pingPongUrlEndpoint)});
         pReply->deleteLater();
     }
 
@@ -53,7 +76,7 @@ public:
         nlohmann::json payload;
         payload["preset-name"] = presetName.toStdString();
         std::string resultJson = payload.dump();
-        auto* pReply = co_await m_nam.post(
+        auto* pReply = co_await m_nam->post(
             QNetworkRequest{getFormattedUrl(createPresetEndpoint)}, QByteArray{resultJson.c_str()});
 
         auto presetId = pReply->readAll();
@@ -80,17 +103,17 @@ public:
 
         auto payloadData = payload.dump();
 
-        auto* pReply = co_await m_nam.post(
+        auto* pReply = co_await m_nam->post(
             QNetworkRequest{getFormattedUrl(addPresetStagesEndpoint, presetId)},
             QByteArray{payloadData.c_str()});
         pReply->deleteLater();
     }
-    QCoro::Task<std::vector<Preset>> getAvailablePresets()
+    QCoro::Task<QVector<Preset>> getAvailablePresets()
     {
-        auto* pReply = co_await m_nam.get(QNetworkRequest{getFormattedUrl(allPresetsEndpoint)});
+        auto* pReply = co_await m_nam->get(QNetworkRequest{getFormattedUrl(allPresetsEndpoint)});
         auto replyData = pReply->readAll();
 
-        std::vector<Preset> result;
+        QVector<Preset> result;
         auto parsedData =
             nlohmann::json::parse(std::string_view(replyData.constData(), replyData.length()));
 
@@ -118,7 +141,7 @@ public:
         nlohmann::json regulator;
         regulator["hysteresis"] = regulatorParams.hysteresis;
         regulator["k"] = regulatorParams.k;
-        auto* pReply = co_await m_nam.post(
+        auto* pReply = co_await m_nam->post(
             QNetworkRequest{getFormattedUrl(regulatorEndpoint)},
             QByteArray{regulator.dump().c_str()});
         pReply->deleteLater();
@@ -128,7 +151,7 @@ public:
     {
         RegulatorParams params{};
 
-        auto* pReply = co_await m_nam.get(QNetworkRequest{getFormattedUrl(regulatorEndpoint)});
+        auto* pReply = co_await m_nam->get(QNetworkRequest{getFormattedUrl(regulatorEndpoint)});
         pReply->deleteLater();
 
         auto replyData = pReply->readAll();
@@ -153,7 +176,7 @@ public:
             payload["payload"] = commandPayload.value();
 
         auto payloadData = payload.dump();
-        auto* pReply = co_await m_nam.post(
+        auto* pReply = co_await m_nam->post(
             QNetworkRequest{getFormattedUrl(commandsEndpoint)}, QByteArray{payloadData.c_str()});
 
         pReply->deleteLater();
@@ -168,7 +191,7 @@ private:
 
 private:
     std::string m_serverUrlBase;
-    QNetworkAccessManager m_nam;
+    std::shared_ptr<QNetworkAccessManager> m_nam;
 };
 
 QCoro::Task<> ReflowRestClient::testPingPongConnection()
@@ -188,7 +211,7 @@ QCoro::Task<> ReflowRestClient::addStagesToPreset(
 {
     co_await m_pImpl->addStagesToPreset(presetId, stages);
 }
-QCoro::Task<std::vector<Preset>> ReflowRestClient::getAvailablePresets()
+QCoro::Task<QVector<Preset>> ReflowRestClient::getAvailablePresets()
 {
     auto presets = co_await m_pImpl->getAvailablePresets();
     co_return presets;

@@ -25,7 +25,7 @@ Popup
     property int popupMode: EditPopupMode.ADD_NEW;
     property int editItemIndex: 0;
 
-    signal addingPresetCompleted(string itemName )
+    signal addingPresetCompleted(string itemName)
     signal editPresetCompleted(int itemId, string itemName)
 
     ColumnLayout
@@ -52,12 +52,14 @@ Popup
                 enabled: presetName.text!=="";
                 onClicked:
                 {
-                    if(isInputFieldsValid()){
-                        if(popupMode === EditPopupMode.ADD_NEW)
-                            addingPresetCompleted(presetName.text);
-                        else
-                            addingPresetCompleted(addCheckListItemPopupRoot.editItemIndex, presetName.text);
+                    if(!isInputFieldsValid())
+                        return;
+
+                    if(popupMode === EditPopupMode.ADD_NEW){
+                        editPresetPopupRoot.addingPresetCompleted(presetName.text);
                     }
+                    else
+                        editPresetPopupRoot.addingPresetCompleted(addCheckListItemPopupRoot.editItemIndex, presetName.text);
                 }
             }
 

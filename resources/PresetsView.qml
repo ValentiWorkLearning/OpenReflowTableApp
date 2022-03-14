@@ -1,7 +1,10 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import app.edit_popup.mode 1.0
+import app.edit_popup.mode
+
+import app.root_model
+import app.presets_model
 
 Item {
 
@@ -53,23 +56,12 @@ Item {
             Connections
             {
                 target: addPresetPopupLoader.item;
-                function addingPresetCompleted(presetName)
+                function onAddingPresetCompleted(presetName)
                 {
-                    console.log(`On adding new preset completed:${suiteName}`)
+                    console.log(`On adding new preset completed:${presetName}`)
+                    AppModel.presetsModel.addReflowPreset(presetName);
                     addPresetPopupLoader.item.close();
                 }
-            }
-        }
-        ListModel {
-            id: testModel
-            ListElement {
-                preset_name: "Solder preset 1"
-            }
-            ListElement {
-                preset_name: "Solder preset 2"
-            }
-            ListElement {
-                preset_name: "Solder preset 3"
             }
         }
 
@@ -77,12 +69,12 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
 
-            model: testModel
+            model: AppModel.presetsModel
             delegate: RowLayout {
                 width: ListView.view.width
                 implicitHeight: 48
                 Label{
-                    text: preset_name
+                    text: presetName
                     elide: Text.ElideRight;
                 }
                 Button

@@ -3,6 +3,10 @@ import QtCharts
 import QtQuick.Layouts
 import QtQuick.Controls
 
+import app.root_model
+import app.presets_model
+
+
 Item {
     signal requestBackToHome;
 
@@ -30,8 +34,10 @@ Item {
                 hoverEnabled: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Available Presets")
+                textRole: "presetName"
+                model: AppModel.presetsModel
 
-                model: ["Preset Name 1", "Preset Name 2", "Preset Name 3"]
+                onCurrentIndexChanged: console.log(`Selected preset id: ${typeof(AppModel.presetsModel.at(currentIndex).presetName)}`)
             }
 
 
