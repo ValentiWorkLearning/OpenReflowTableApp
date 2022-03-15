@@ -10,7 +10,6 @@ import app.reflow_controller
 Item {
     signal requestBackToHome;
 
-
     function refreshPresetChartView(presetId)
     {
         AppModel.presetsModel.sheduleGetPresetStages(presetId)
@@ -20,6 +19,28 @@ Item {
     {
         realtimeDataSeries.removePoints(0,realtimeDataSeries.count)
     }
+
+    function addRealtimePlotData(systemState)
+    {
+        let realtimeTemperature = AppModel.reflowController.systemState.currentTemperature;
+        let timepoint = AppModel.reflowController.systemState.systemTime;
+        realtimeDataSeries.append(timepoint,realtimeTemperature);
+    }
+
+    function processSelectedPresetIdApplying(systemState)
+    {
+        let itemsCount = AppModel.presetsModel.itemsCount();
+
+        for(let it = 0; it !== AppModel.presetsModel.itemsCount(); ++it)
+        {
+            let isPresetFound = AppModel.reflowController.systemState.activePresetId ===
+                AppModel.presetsModel.at(it).presetId;
+            if(isPresetFound){
+                presetsCombobox.currentIndex = it;
+            }
+        }
+    }
+
     Connections
     {
         target:  AppModel.presetsModel
@@ -38,9 +59,17 @@ Item {
         target: AppModel.reflowController
         function onSystemStateChanged(systemState)
         {
-            let realtimeTemperature = AppModel.reflowController.systemState.currentTemperature;
-            let timepoint = AppModel.reflowController.systemState.systemTime;
-            realtimeDataSeries.append(timepoint,realtimeTemperature);
+            addRealtimePlotData(systemState);
+
+            let canApplyPresetIdFromState =
+                presetsCombobox.currentIndex ===-1
+            && AppModel.reflowController.systemState.activePresetId !== "";
+
+            if(!canApplyPresetIdFromState)
+                return;
+
+            processSelectedPresetIdApplying(systemState);
+
         }
     }
     ColumnLayout
@@ -54,19 +83,19 @@ Item {
             id: reflowRibbonLayout
             Layout.fillWidth: true
 
-
             BackButton
             {
                 onClicked: requestBackToHome();
             }
-
             ComboBox
             {
                 id: presetsCombobox
                 implicitContentWidthPolicy: ComboBox.WidestText
                 hoverEnabled: true
+                enabled: !AppModel.reflowController.systemState.isReflowRunning;
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Available Presets")
+
                 textRole: "presetName"
                 model: AppModel.presetsModel
                 onCurrentIndexChanged:
@@ -74,17 +103,17 @@ Item {
                     refreshPresetChartView(AppModel.presetsModel.at(presetsCombobox.currentIndex).presetId);
                 }
             }
-
-
             Button
             {
                 id: startReflowButton
                 text: qsTr("START")
                 hoverEnabled: true
+                enabled: presetsCombobox.currentIndex !== -1 && !AppModel.reflowController.systemState.isReflowRunning;
+
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Start reflow process")
                 Material.background: Material.Green
-                enabled: presetsCombobox.currentIndex !== -1;
+
                 onClicked:
                 {
                     AppModel.reflowController.selectPreset(AppModel.presetsModel.at(presetsCombobox.currentIndex).presetId);
@@ -95,7 +124,7 @@ Item {
             {
                 id: stopReflowButton
                 text: qsTr("STOP")
-
+                enabled: AppModel.reflowController.systemState.isReflowRunning;
                 hoverEnabled: true
                 ToolTip.visible: hovered
                 ToolTip.text: qsTr("Stop reflow process")
@@ -114,7 +143,6 @@ Item {
                 font.pixelSize: 48
             }
 
-
         }
 
         ChartView {
@@ -122,7 +150,8 @@ Item {
             Layout.fillHeight: true
             antialiasing: true
 
-            ValueAxis {
+            ValueAxis
+            {
                 id: axisYConstrain
                 min: 0
                 max: 350

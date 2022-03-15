@@ -180,6 +180,15 @@ public:
         auto telemetryData = co_await executeGetRequest(telemetryEndpoint);
         state.currentTemperature = telemetryData["temperature-data"].get<std::int32_t>();
         state.systemTime = telemetryData["system-time"].get<std::uint32_t>();
+        state.isRunning = telemetryData["is-reflow-running"].get<bool>();
+
+        auto presetIdOpt = telemetryData["active-preset-id"];
+
+        if (presetIdOpt.is_null())
+            co_return state;
+
+        state.activePresetId = QString::number(presetIdOpt.get<std::uint64_t>());
+
         co_return state;
     }
 

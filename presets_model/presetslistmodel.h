@@ -27,6 +27,7 @@ public:
     Q_INVOKABLE void addReflowPreset(QString presetTitle);
     Q_INVOKABLE Reflow::Client::Preset at(int index);
     Q_INVOKABLE void sheduleGetPresetStages(QString presetId);
+    Q_INVOKABLE int itemsCount()const;
 
     void refresh();
 

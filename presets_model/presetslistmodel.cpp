@@ -79,14 +79,7 @@ void PresetsListModel::addReflowPreset(QString presetTitle)
 
 int PresetsListModel::rowCount(const QModelIndex& parent) const
 {
-
-    if (!m_pImpl->isLoaded())
-    {
-        m_pImpl->loadPresetsData();
-        return 0;
-    }
-
-    return m_pImpl->getRowsCount();
+    return itemsCount();
 }
 
 void PresetsListModel::registerQmlType()
@@ -148,4 +141,15 @@ PresetsListModel::TRoleNames PresetsListModel::roleNames() const
     roles[PresetId] = "presetId";
     roles[PresetName] = "presetName";
     return roles;
+}
+
+int PresetsListModel::itemsCount() const
+{
+    if (!m_pImpl->isLoaded())
+    {
+        m_pImpl->loadPresetsData();
+        return 0;
+    }
+
+    return m_pImpl->getRowsCount();
 }
