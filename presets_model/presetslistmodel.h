@@ -26,6 +26,8 @@ public:
 
     Q_INVOKABLE void addReflowPreset(QString presetTitle);
     Q_INVOKABLE Reflow::Client::Preset at(int index);
+
+    void refresh();
 public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 

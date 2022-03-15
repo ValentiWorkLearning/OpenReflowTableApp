@@ -10,11 +10,18 @@ public:
     {
     }
 
-    void startReflow()
+    QCoro::Task<> startReflow()
     {
+        co_await m_pRestClient->startReflow();
     }
-    void stopReflow()
+    QCoro::Task<> stopReflow()
     {
+        co_await m_pRestClient->stopReflow();
+    }
+
+    QCoro::Task<> selectPreset(QString presetId)
+    {
+        co_await m_pRestClient->selectActivePreset(presetId);
     }
 
 private:
@@ -37,6 +44,11 @@ void ProcessController::startReflow()
 void ProcessController::stopReflow()
 {
     m_pImpl->stopReflow();
+}
+
+void ProcessController::selectPreset(QString presetId)
+{
+    m_pImpl->selectPreset(presetId);
 }
 
 void ProcessController::registerQmlType()

@@ -2,6 +2,8 @@ import QtQuick
 import QtQuick.Window
 import QtQuick.Controls
 import QtQuick.Layouts
+import app.root_model
+import app.presets_model
 
 
 ApplicationWindow  {
@@ -38,6 +40,19 @@ ApplicationWindow  {
         source:"qrc:/fonts/Roboto-Black.ttf";
     }
 
+    Button
+    {
+        id:refreshButton
+        anchors.top: parent.top;
+        anchors.right: closeAppButton.left
+        anchors.topMargin: 8
+        anchors.rightMargin: 8
+        icon.source: "qrc:/icons/refresh.svg"
+        onClicked:
+        {
+            AppModel.refresh();
+        }
+    }
     Button
     {
         id: closeAppButton

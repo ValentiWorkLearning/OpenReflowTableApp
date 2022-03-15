@@ -31,10 +31,10 @@ struct Preset
 private:
     Q_GADGET
 public:
-    Q_PROPERTY(std::uint64_t presetId MEMBER presetId)
+    Q_PROPERTY(QString presetId MEMBER presetId)
     Q_PROPERTY(QString presetName MEMBER presetName)
 public:
-    std::uint64_t presetId;
+    QString presetId;
     QString presetName;
 };
 
@@ -60,9 +60,9 @@ public:
 public:
     QCoro::Task<> testPingPongConnection();
     QCoro::Task<std::uint64_t> createNewPreset(const QString& presetName);
-    QCoro::Task<> addStagesToPreset(std::uint64_t presetId, const std::vector<Stage> stages);
+    QCoro::Task<> addStagesToPreset(QString presetId, const std::vector<Stage> stages);
     QCoro::Task<QVector<Preset>> getAvailablePresets();
-    QCoro::Task<> selectActivePreset(const std::uint64_t presetId);
+    QCoro::Task<> selectActivePreset(QString presetId);
     QCoro::Task<> setRegulatorParams(const RegulatorParams& regulatorParams);
     QCoro::Task<RegulatorParams> getRegulatorParams();
     QCoro::Task<> startReflow();

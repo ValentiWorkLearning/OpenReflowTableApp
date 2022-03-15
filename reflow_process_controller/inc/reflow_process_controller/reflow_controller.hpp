@@ -17,6 +17,7 @@ public:
 public:
     Q_INVOKABLE void startReflow();
     Q_INVOKABLE void stopReflow();
+    Q_INVOKABLE void selectPreset(QString presetId);
 
 public:
     static void registerQmlType();

@@ -60,8 +60,8 @@ conan_cmake_install(PATH_OR_REFERENCE .
                     SETTINGS ${settings})
 
 
-find_package(QT NAMES Qt6 COMPONENTS Core Quick Widgets REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick Widgets REQUIRED)
+find_package(QT NAMES Qt6 COMPONENTS Core Quick Widgets Xml Svg REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Quick Widgets Widgets Xml Svg REQUIRED)
 
 find_package(jsoncpp REQUIRED)
 find_package(ZLIB REQUIRED)
@@ -114,7 +114,7 @@ target_compile_definitions(OpenOvenApp
   PRIVATE $<$<OR:$<CONFIG:Debug>,$<CONFIG:RelWithDebInfo>>:QT_QML_DEBUG>)
 
 target_link_libraries(OpenOvenApp
-  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick Qt${QT_VERSION_MAJOR}::Widgets
+  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Quick Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Xml Qt${QT_VERSION_MAJOR}::Svg
   fmt::fmt
   nlohmann_json::nlohmann_json
   Microsoft.GSL::GSL

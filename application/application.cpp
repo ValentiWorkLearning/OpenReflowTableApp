@@ -14,6 +14,11 @@ class App::AppImpl : public QObject
 public:
     Q_PROPERTY(PresetsListModel* presetsModel READ getPresetsModel CONSTANT)
     Q_PROPERTY(Reflow::ProcessController* reflowController READ getReflowController CONSTANT)
+    Q_INVOKABLE void refresh()
+    {
+        m_presetsModel->refresh();
+    }
+
 public:
     void registerTypes()
     {

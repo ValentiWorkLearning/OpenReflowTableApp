@@ -30,7 +30,6 @@ Item {
             ComboBox
             {
                 id: presetsCombobox
-                property string selectedPresetId : AppModel.presetsModel.at(currentIndex).presetId
                 implicitContentWidthPolicy: ComboBox.WidestText
                 hoverEnabled: true
                 ToolTip.visible: hovered
@@ -38,7 +37,6 @@ Item {
                 textRole: "presetName"
                 model: AppModel.presetsModel
 
-                onCurrentIndexChanged: AppModel.reflowProcessController.selectPreset(selectedPresetId)
             }
 
 
@@ -52,8 +50,10 @@ Item {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Start reflow process")
                     Material.background: Material.Green
+                    enabled: presetsCombobox.currentIndex !== -1;
                     onClicked:
                     {
+                        AppModel.reflowController.selectPreset(AppModel.presetsModel.at(presetsCombobox.currentIndex).presetId);
                         AppModel.reflowController.startReflow();
                     }
                 }

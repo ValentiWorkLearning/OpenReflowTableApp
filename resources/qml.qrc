@@ -7,5 +7,6 @@
         <file>ReflowView.qml</file>
         <file>BackButton.qml</file>
         <file>EditPresetPopup.qml</file>
+        <file>icons/refresh.svg</file>
     </qresource>
 </RCC>

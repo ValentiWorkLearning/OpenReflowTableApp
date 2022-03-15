@@ -24,6 +24,10 @@ public:
         return m_isLoaded;
     }
 
+    QCoro::Task<> refresh()
+    {
+        co_await loadPresetsData();
+    }
     QCoro::Task<> loadPresetsData()
     {
         q_ptr->beginResetModel();
@@ -122,6 +126,10 @@ Reflow::Client::Preset PresetsListModel::at(int index)
     return m_pImpl->getPresetByIndex(index).value();
 }
 
+void PresetsListModel::refresh()
+{
+    m_pImpl->refresh();
+}
 PresetsListModel::TRoleNames PresetsListModel::roleNames() const
 {
     QHash<int, QByteArray> roles;

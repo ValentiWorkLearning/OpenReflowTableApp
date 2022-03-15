@@ -88,7 +88,7 @@ public:
         co_return result;
     }
 
-    QCoro::Task<> addStagesToPreset(std::uint64_t presetId, const std::vector<Stage> stages)
+    QCoro::Task<> addStagesToPreset(QString presetId, const std::vector<Stage> stages)
     {
         nlohmann::json payload;
         nlohmann::json stagesArray;
@@ -104,7 +104,7 @@ public:
         auto payloadData = payload.dump();
 
         auto* pReply = co_await m_nam->post(
-            QNetworkRequest{getFormattedUrl(addPresetStagesEndpoint, presetId)},
+            QNetworkRequest{getFormattedUrl(addPresetStagesEndpoint, presetId.toStdString())},
             QByteArray{payloadData.c_str()});
         pReply->deleteLater();
     }
@@ -121,7 +121,7 @@ public:
         for (auto preset : resultArray)
         {
             result.push_back(
-                {preset["preset-id"].get<std::uint64_t>(),
+                {QString::number(preset["preset-id"].get<std::uint64_t>()),
                  QString::fromStdString(preset["preset-name"].get<std::string>())});
         }
         pReply->deleteLater();
@@ -129,10 +129,10 @@ public:
         co_return result;
     }
 
-    QCoro::Task<> selectActivePreset(const std::uint64_t presetId)
+    QCoro::Task<> selectActivePreset(QString presetId)
     {
         nlohmann::json presetPayload;
-        presetPayload["preset-id"] = presetId;
+        presetPayload["preset-id"] = presetId.toLongLong();
         co_await sendCommandToServer(Reflow::Commands::kSelectPreset, presetPayload);
     }
 
@@ -205,9 +205,7 @@ QCoro::Task<std::uint64_t> ReflowRestClient::createNewPreset(const QString& pres
     co_return result;
 }
 
-QCoro::Task<> ReflowRestClient::addStagesToPreset(
-    std::uint64_t presetId,
-    const std::vector<Stage> stages)
+QCoro::Task<> ReflowRestClient::addStagesToPreset(QString presetId, const std::vector<Stage> stages)
 {
     co_await m_pImpl->addStagesToPreset(presetId, stages);
 }
@@ -216,7 +214,7 @@ QCoro::Task<QVector<Preset>> ReflowRestClient::getAvailablePresets()
     auto presets = co_await m_pImpl->getAvailablePresets();
     co_return presets;
 }
-QCoro::Task<> ReflowRestClient::selectActivePreset(const std::uint64_t presetId)
+QCoro::Task<> ReflowRestClient::selectActivePreset(QString presetId)
 {
     co_await m_pImpl->selectActivePreset(presetId);
 }
