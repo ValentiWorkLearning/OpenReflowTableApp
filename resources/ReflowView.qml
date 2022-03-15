@@ -10,6 +10,24 @@ import app.reflow_controller
 Item {
     signal requestBackToHome;
 
+
+    function refreshPresetChartView(presetId)
+    {
+        AppModel.presetsModel.sheduleGetPresetStages(presetId)
+    }
+
+    Connections
+    {
+        target:  AppModel.presetsModel
+        function onPresetStagesReady(presetStages)
+        {
+            selectedPresetSeries.removePoints(0,selectedPresetSeries.count)
+            selectedPresetSeries.append(0,0);
+            for(let presetStage of presetStages){
+                selectedPresetSeries.append(presetStage.duration,presetStage.temperature);
+            }
+        }
+    }
     ColumnLayout
     {
         anchors.fill: parent
@@ -36,7 +54,10 @@ Item {
                 ToolTip.text: qsTr("Available Presets")
                 textRole: "presetName"
                 model: AppModel.presetsModel
-
+                onCurrentIndexChanged:
+                {
+                    refreshPresetChartView(AppModel.presetsModel.at(presetsCombobox.currentIndex).presetId);
+                }
             }
 
 
@@ -81,16 +102,27 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
             antialiasing: true
+
+            ValueAxis {
+                        id: axisYConstrain
+                        min: 0
+                        max: 350
+                    }
+
+            ValueAxis
+            {
+                id: axisXConstrain
+                min: 0
+                max: 600
+            }
+
             theme: ChartView.ChartThemeDark
+
             LineSeries {
-                name: "LineSeries"
-                XYPoint { x: 0; y: 0 }
-                XYPoint { x: 1.1; y: 2.1 }
-                XYPoint { x: 1.9; y: 3.3 }
-                XYPoint { x: 2.1; y: 2.1 }
-                XYPoint { x: 2.9; y: 4.9 }
-                XYPoint { x: 3.4; y: 3.0 }
-                XYPoint { x: 4.1; y: 3.3 }
+                id: selectedPresetSeries
+                axisY:  axisYConstrain
+                axisX: axisXConstrain
+                name: AppModel.presetsModel.at(presetsCombobox.currentIndex).presetName
             }
         }
 

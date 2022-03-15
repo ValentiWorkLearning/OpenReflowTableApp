@@ -77,6 +77,10 @@ Item {
                     text: presetName
                     elide: Text.ElideRight;
                 }
+                Item
+                {
+                    Layout.fillWidth:true;
+                }
                 Button
                 {
                     id: setupPresetButton

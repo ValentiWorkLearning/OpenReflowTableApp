@@ -41,6 +41,13 @@ public:
         co_await m_restClient->createNewPreset(presetTitle);
         co_await loadPresetsData();
     }
+
+    QCoro::Task<> getPresetStages(QString presetId)
+    {
+        auto presetItems = co_await m_restClient->getPresetStages(presetId);
+        emit q_ptr->presetStagesReady(presetItems);
+    }
+
     std::optional<Reflow::Client::Preset> getPresetByIndex(int presetIndex)
     {
         return presetIndex >= m_presetsStorage.size()
@@ -129,6 +136,11 @@ Reflow::Client::Preset PresetsListModel::at(int index)
 void PresetsListModel::refresh()
 {
     m_pImpl->refresh();
+}
+
+void PresetsListModel::sheduleGetPresetStages(QString presetId)
+{
+    m_pImpl->getPresetStages(presetId);
 }
 PresetsListModel::TRoleNames PresetsListModel::roleNames() const
 {

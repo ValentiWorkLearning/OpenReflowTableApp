@@ -21,6 +21,12 @@ private:
 public:
     Q_PROPERTY(std::uint32_t temperature MEMBER temperature)
     Q_PROPERTY(std::uint32_t duration MEMBER duration)
+
+    static void registerQmlType()
+    {
+        qRegisterMetaType<QVector<Stage>>();
+    }
+
 public:
     std::uint32_t temperature;
     std::uint32_t duration;
@@ -33,6 +39,7 @@ private:
 public:
     Q_PROPERTY(QString presetId MEMBER presetId)
     Q_PROPERTY(QString presetName MEMBER presetName)
+
 public:
     QString presetId;
     QString presetName;
@@ -61,6 +68,7 @@ public:
     QCoro::Task<> testPingPongConnection();
     QCoro::Task<std::uint64_t> createNewPreset(const QString& presetName);
     QCoro::Task<> addStagesToPreset(QString presetId, const std::vector<Stage> stages);
+    QCoro::Task<QVector<Stage>> getPresetStages(QString presetId);
     QCoro::Task<QVector<Preset>> getAvailablePresets();
     QCoro::Task<> selectActivePreset(QString presetId);
     QCoro::Task<> setRegulatorParams(const RegulatorParams& regulatorParams);

@@ -25,6 +25,7 @@ public:
         EditPopupModeNs::registerEditPopupModeEnum();
         PresetsListModel::registerQmlType();
         Reflow::ProcessController::registerQmlType();
+        Reflow::Client::Stage::registerQmlType();
     }
 
     void addContextProperties(QQmlApplicationEngine& _qmlEngine)

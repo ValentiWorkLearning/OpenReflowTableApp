@@ -26,8 +26,14 @@ public:
 
     Q_INVOKABLE void addReflowPreset(QString presetTitle);
     Q_INVOKABLE Reflow::Client::Preset at(int index);
+    Q_INVOKABLE void sheduleGetPresetStages(QString presetId);
 
     void refresh();
+
+public:
+signals:
+    void presetStagesReady(QVector<Reflow::Client::Stage> stages);
+
 public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 

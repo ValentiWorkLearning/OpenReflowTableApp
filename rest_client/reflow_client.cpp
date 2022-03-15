@@ -15,6 +15,9 @@
 static constexpr std::string_view pingPongUrlEndpoint =
     "http://{}/api/v1/ReflowController/ping-pong";
 static constexpr std::string_view createPresetEndpoint = "http://{}/api/v1/ReflowController/preset";
+static constexpr std::string_view presetInfoEndpoint =
+    "http://{}/api/v1/ReflowController/preset/{}";
+
 static constexpr std::string_view addPresetStagesEndpoint =
     "http://{}/api/v1/ReflowController/preset/{}";
 
@@ -67,23 +70,17 @@ public:
 public:
     QCoro::Task<> testPingPongConnection()
     {
-        auto* pReply = co_await m_nam->get(QNetworkRequest{getFormattedUrl(pingPongUrlEndpoint)});
-        pReply->deleteLater();
+        co_await executeGetRequest(pingPongUrlEndpoint);
     }
 
     QCoro::Task<std::uint64_t> createNewPreset(const QString& presetName)
     {
         nlohmann::json payload;
         payload["preset-name"] = presetName.toStdString();
-        std::string resultJson = payload.dump();
-        auto* pReply = co_await m_nam->post(
-            QNetworkRequest{getFormattedUrl(createPresetEndpoint)}, QByteArray{resultJson.c_str()});
 
-        auto presetId = pReply->readAll();
-        auto jsonResult =
-            nlohmann::json::parse(std::string_view(presetId.constData(), presetId.length()));
-        pReply->deleteLater();
-
+        auto responseOpt = co_await executePostRequest(createPresetEndpoint, payload.dump());
+        // TODO handle Erorrs
+        auto jsonResult = responseOpt.value();
         std::uint64_t result{jsonResult["preset-id"].get<std::uint64_t>()};
         co_return result;
     }
@@ -101,21 +98,12 @@ public:
         }
         payload["stages"] = stagesArray;
 
-        auto payloadData = payload.dump();
-
-        auto* pReply = co_await m_nam->post(
-            QNetworkRequest{getFormattedUrl(addPresetStagesEndpoint, presetId.toStdString())},
-            QByteArray{payloadData.c_str()});
-        pReply->deleteLater();
+        co_await executePostRequest(addPresetStagesEndpoint, payload.dump());
     }
     QCoro::Task<QVector<Preset>> getAvailablePresets()
     {
-        auto* pReply = co_await m_nam->get(QNetworkRequest{getFormattedUrl(allPresetsEndpoint)});
-        auto replyData = pReply->readAll();
-
         QVector<Preset> result;
-        auto parsedData =
-            nlohmann::json::parse(std::string_view(replyData.constData(), replyData.length()));
+        auto parsedData = co_await executeGetRequest(allPresetsEndpoint);
 
         const auto& resultArray = parsedData.get_ref<const nlohmann::json::array_t&>();
         for (auto preset : resultArray)
@@ -124,7 +112,6 @@ public:
                 {QString::number(preset["preset-id"].get<std::uint64_t>()),
                  QString::fromStdString(preset["preset-name"].get<std::string>())});
         }
-        pReply->deleteLater();
 
         co_return result;
     }
@@ -141,24 +128,16 @@ public:
         nlohmann::json regulator;
         regulator["hysteresis"] = regulatorParams.hysteresis;
         regulator["k"] = regulatorParams.k;
-        auto* pReply = co_await m_nam->post(
-            QNetworkRequest{getFormattedUrl(regulatorEndpoint)},
-            QByteArray{regulator.dump().c_str()});
-        pReply->deleteLater();
+
+        co_await executePostRequest(regulatorEndpoint, regulator.dump());
     }
 
     QCoro::Task<RegulatorParams> getRegulatorParams()
     {
         RegulatorParams params{};
 
-        auto* pReply = co_await m_nam->get(QNetworkRequest{getFormattedUrl(regulatorEndpoint)});
-        pReply->deleteLater();
-
-        auto replyData = pReply->readAll();
-
         std::vector<Preset> result;
-        auto parsedData =
-            nlohmann::json::parse(std::string_view(replyData.constData(), replyData.length()));
+        auto parsedData = co_await executeGetRequest(regulatorEndpoint);
 
         params.hysteresis = parsedData["hysteresis"].get<std::uint32_t>();
         params.k = parsedData["k"].get<float>();
@@ -175,11 +154,55 @@ public:
         if (commandPayload.has_value())
             payload["payload"] = commandPayload.value();
 
-        auto payloadData = payload.dump();
-        auto* pReply = co_await m_nam->post(
-            QNetworkRequest{getFormattedUrl(commandsEndpoint)}, QByteArray{payloadData.c_str()});
+        co_await executePostRequest(commandsEndpoint, payload.dump());
+    }
+
+    QCoro::Task<QVector<Stage>> getPresetStages(QString presetId)
+    {
+        QVector<Stage> stagesResult;
+        auto presetData = co_await executeGetRequest(presetInfoEndpoint, presetId.toStdString());
+        const auto& stagesArray = presetData["stages"].get_ref<const nlohmann::json::array_t&>();
+        for (const auto& stageItem : stagesArray)
+        {
+            stagesResult.push_back(
+                {stageItem["temperature"].get<std::uint32_t>(),
+                 static_cast<std::uint32_t>(
+                     std::stoll(stageItem["stage-duration"].get<std::string>()))});
+        }
+        co_return stagesResult;
+    }
+
+private:
+    template <typename... ExtraArgs>
+    QCoro::Task<nlohmann::json> executeGetRequest(
+        std::string_view endpoint,
+        ExtraArgs&&... extraArgs)
+    {
+        auto* pReply =
+            co_await m_nam->get(QNetworkRequest{getFormattedUrl(endpoint, extraArgs...)});
+        auto replyData = pReply->readAll();
 
         pReply->deleteLater();
+        auto parsedData =
+            nlohmann::json::parse(std::string_view(replyData.constData(), replyData.length()));
+
+        co_return parsedData;
+    }
+
+    QCoro::Task<std::optional<nlohmann::json>> executePostRequest(
+        std::string_view endpoint,
+        std::string_view requestPayload)
+    {
+        auto* pReply = co_await m_nam->post(
+            QNetworkRequest{getFormattedUrl(commandsEndpoint)}, QByteArray{requestPayload.data()});
+
+        auto responseBody = pReply->readAll();
+        pReply->deleteLater();
+        if (!responseBody.isEmpty())
+            co_return nlohmann::json::parse(
+                std::string_view(responseBody.constData(), responseBody.length()));
+
+        co_return std::nullopt;
     }
 
 private:
@@ -209,19 +232,29 @@ QCoro::Task<> ReflowRestClient::addStagesToPreset(QString presetId, const std::v
 {
     co_await m_pImpl->addStagesToPreset(presetId, stages);
 }
+
+QCoro::Task<QVector<Stage>> ReflowRestClient::getPresetStages(QString presetId)
+{
+    auto presetStages = co_await m_pImpl->getPresetStages(presetId);
+    co_return presetStages;
+}
+
 QCoro::Task<QVector<Preset>> ReflowRestClient::getAvailablePresets()
 {
     auto presets = co_await m_pImpl->getAvailablePresets();
     co_return presets;
 }
+
 QCoro::Task<> ReflowRestClient::selectActivePreset(QString presetId)
 {
     co_await m_pImpl->selectActivePreset(presetId);
 }
+
 QCoro::Task<> ReflowRestClient::setRegulatorParams(const RegulatorParams& regulatorParams)
 {
     co_await m_pImpl->setRegulatorParams(regulatorParams);
 }
+
 QCoro::Task<RegulatorParams> ReflowRestClient::getRegulatorParams()
 {
     auto regulatorParams = co_await m_pImpl->getRegulatorParams();
@@ -232,6 +265,7 @@ QCoro::Task<> ReflowRestClient::startReflow()
 {
     co_await m_pImpl->sendCommandToServer(Reflow::Commands::kStart);
 }
+
 QCoro::Task<> ReflowRestClient::stopReflow()
 {
     co_await m_pImpl->sendCommandToServer(Reflow::Commands::kStop);
@@ -241,6 +275,7 @@ ReflowRestClient::ReflowRestClient(const std::string& serverUrlBase)
     : m_pImpl{std::make_unique<ReflowRestClientImpl>(serverUrlBase)}
 {
 }
+
 ReflowRestClient::~ReflowRestClient() = default;
 
 } // namespace Reflow::Client
