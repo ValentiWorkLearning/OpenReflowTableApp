@@ -2,6 +2,7 @@
 #include <application/application.h>
 #include <application/edit_popup_mode.h>
 #include <presetslistmodel.h>
+#include <reflow_process_controller/reflow_controller.hpp>
 #include <reflow_rest_client/reflow_client.hpp>
 
 namespace AppSetup
@@ -11,19 +12,23 @@ class App::AppImpl : public QObject
 {
     Q_OBJECT
 public:
-    Q_PROPERTY(PresetsListModel* presetsModel READ getPresetsModel NOTIFY presetsModelChanged)
+    Q_PROPERTY(PresetsListModel* presetsModel READ getPresetsModel CONSTANT)
+    Q_PROPERTY(Reflow::ProcessController* reflowController READ getReflowController CONSTANT)
 public:
     void registerTypes()
     {
         EditPopupModeNs::registerEditPopupModeEnum();
         PresetsListModel::registerQmlType();
+        Reflow::ProcessController::registerQmlType();
     }
 
     void addContextProperties(QQmlApplicationEngine& _qmlEngine)
     {
         m_restClient = std::make_shared<Reflow::Client::ReflowRestClient>("localhost:8086");
         m_restClient->testPingPongConnection();
+
         m_presetsModel = std::make_unique<PresetsListModel>(m_restClient);
+        m_reflowProcessController = std::make_unique<Reflow::ProcessController>(m_restClient);
 
         _qmlEngine.setObjectOwnership(m_presetsModel.get(), QQmlEngine::CppOwnership);
 
@@ -50,9 +55,15 @@ private:
     {
         return m_presetsModel.get();
     }
+    Reflow::ProcessController* getReflowController() const
+
+    {
+        return m_reflowProcessController.get();
+    }
 
 private:
     std::unique_ptr<PresetsListModel> m_presetsModel;
+    std::unique_ptr<Reflow::ProcessController> m_reflowProcessController;
     std::shared_ptr<Reflow::Client::ReflowRestClient> m_restClient;
 };
 

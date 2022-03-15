@@ -5,7 +5,7 @@ import QtQuick.Controls
 
 import app.root_model
 import app.presets_model
-
+import app.reflow_controller
 
 Item {
     signal requestBackToHome;
@@ -30,6 +30,7 @@ Item {
             ComboBox
             {
                 id: presetsCombobox
+                property string selectedPresetId : AppModel.presetsModel.at(currentIndex).presetId
                 implicitContentWidthPolicy: ComboBox.WidestText
                 hoverEnabled: true
                 ToolTip.visible: hovered
@@ -37,7 +38,7 @@ Item {
                 textRole: "presetName"
                 model: AppModel.presetsModel
 
-                onCurrentIndexChanged: console.log(`Selected preset id: ${typeof(AppModel.presetsModel.at(currentIndex).presetName)}`)
+                onCurrentIndexChanged: AppModel.reflowProcessController.selectPreset(selectedPresetId)
             }
 
 
@@ -51,6 +52,10 @@ Item {
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Start reflow process")
                     Material.background: Material.Green
+                    onClicked:
+                    {
+                        AppModel.reflowController.startReflow();
+                    }
                 }
                 Button
                 {
@@ -62,6 +67,10 @@ Item {
                     ToolTip.text: qsTr("Stop reflow process")
 
                     Material.background: Material.Red
+                    onClicked:
+                    {
+                        AppModel.reflowController.stopReflow();
+                    }
                 }
             }
 

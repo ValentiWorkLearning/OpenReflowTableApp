@@ -125,6 +125,7 @@ target_link_libraries(OpenOvenApp
 add_subdirectory(application)
 add_subdirectory(rest_client)
 add_subdirectory(presets_model)
+add_subdirectory(reflow_process_controller)
 
 target_compile_features(
     OpenOvenApp
