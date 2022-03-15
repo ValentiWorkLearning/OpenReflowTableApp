@@ -76,46 +76,44 @@ Item {
             }
 
 
-            Row{
-                spacing: 8
-                Button
+            Button
+            {
+                id: startReflowButton
+                text: qsTr("START")
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Start reflow process")
+                Material.background: Material.Green
+                enabled: presetsCombobox.currentIndex !== -1;
+                onClicked:
                 {
-                    id: startReflowButton
-                    text: qsTr("START")
-                    hoverEnabled: true
-                    ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Start reflow process")
-                    Material.background: Material.Green
-                    enabled: presetsCombobox.currentIndex !== -1;
-                    onClicked:
-                    {
-                        AppModel.reflowController.selectPreset(AppModel.presetsModel.at(presetsCombobox.currentIndex).presetId);
-                        AppModel.reflowController.startReflow();
-                    }
-                }
-                Button
-                {
-                    id: stopReflowButton
-                    text: qsTr("STOP")
-
-                    hoverEnabled: true
-                    ToolTip.visible: hovered
-                    ToolTip.text: qsTr("Stop reflow process")
-
-                    Material.background: Material.Red
-                    onClicked:
-                    {
-                        AppModel.reflowController.stopReflow();
-                        cleanupRealtimeChart();
-                    }
-                }
-                Label
-                {
-                    id:currentTemperatureLabel
-                    text: AppModel.reflowController.systemState.currentTemperature
-                     font.pixelSize: 48
+                    AppModel.reflowController.selectPreset(AppModel.presetsModel.at(presetsCombobox.currentIndex).presetId);
+                    AppModel.reflowController.startReflow();
                 }
             }
+            Button
+            {
+                id: stopReflowButton
+                text: qsTr("STOP")
+
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Stop reflow process")
+
+                Material.background: Material.Red
+                onClicked:
+                {
+                    AppModel.reflowController.stopReflow();
+                    cleanupRealtimeChart();
+                }
+            }
+            Label
+            {
+                id:currentTemperatureLabel
+                text: AppModel.reflowController.systemState.currentTemperature
+                font.pixelSize: 48
+            }
+
 
         }
 
@@ -126,10 +124,10 @@ Item {
             antialiasing: true
 
             ValueAxis {
-                        id: axisYConstrain
-                        min: 0
-                        max: 350
-                    }
+                id: axisYConstrain
+                min: 0
+                max: 350
+            }
 
             ValueAxis
             {
