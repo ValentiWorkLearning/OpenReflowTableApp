@@ -4,7 +4,6 @@
 #include <presetslistmodel.h>
 #include <reflow_process_controller/reflow_controller.hpp>
 #include <reflow_rest_client/reflow_client.hpp>
-
 namespace AppSetup
 {
 
@@ -14,6 +13,7 @@ class App::AppImpl : public QObject
 public:
     Q_PROPERTY(PresetsListModel* presetsModel READ getPresetsModel CONSTANT)
     Q_PROPERTY(Reflow::ProcessController* reflowController READ getReflowController CONSTANT)
+
     Q_INVOKABLE void refresh()
     {
         m_presetsModel->refresh();
@@ -52,6 +52,7 @@ public:
     void cleanupApplication()
     {
     }
+
 signals:
 
     void presetsModelChanged();
@@ -71,6 +72,7 @@ private:
     std::unique_ptr<PresetsListModel> m_presetsModel;
     std::unique_ptr<Reflow::ProcessController> m_reflowProcessController;
     std::shared_ptr<Reflow::Client::ReflowRestClient> m_restClient;
+    Reflow::Client::SystemState m_systemState{};
 };
 
 App::App() : m_pAppImpl{std::make_unique<App::AppImpl>()}

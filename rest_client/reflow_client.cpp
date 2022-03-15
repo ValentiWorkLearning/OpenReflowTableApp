@@ -27,6 +27,8 @@ static constexpr std::string_view commandsEndpoint = "http://{}/api/v1/ReflowCon
 
 static constexpr std::string_view regulatorEndpoint = "http://{}/api/v1/ReflowController/regulator";
 
+static constexpr std::string_view telemetryEndpoint = "http://{}/api/v1/ReflowController/telemetry";
+
 namespace Reflow::Commands
 {
 static constexpr std::string_view kStart = "start";
@@ -172,6 +174,15 @@ public:
         co_return stagesResult;
     }
 
+    QCoro::Task<SystemState> getSystemState()
+    {
+        SystemState state{};
+        auto telemetryData = co_await executeGetRequest(telemetryEndpoint);
+        state.currentTemperature = telemetryData["temperature-data"].get<std::int32_t>();
+        state.systemTime = telemetryData["system-time"].get<std::uint32_t>();
+        co_return state;
+    }
+
 private:
     template <typename... ExtraArgs>
     QCoro::Task<nlohmann::json> executeGetRequest(
@@ -269,6 +280,12 @@ QCoro::Task<> ReflowRestClient::startReflow()
 QCoro::Task<> ReflowRestClient::stopReflow()
 {
     co_await m_pImpl->sendCommandToServer(Reflow::Commands::kStop);
+}
+
+QCoro::Task<SystemState> ReflowRestClient::getSystemState()
+{
+    auto systemState = co_await m_pImpl->getSystemState();
+    co_return systemState;
 }
 
 ReflowRestClient::ReflowRestClient(const std::string& serverUrlBase)

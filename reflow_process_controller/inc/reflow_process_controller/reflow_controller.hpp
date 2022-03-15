@@ -19,6 +19,14 @@ public:
     Q_INVOKABLE void stopReflow();
     Q_INVOKABLE void selectPreset(QString presetId);
 
+    Q_PROPERTY(Reflow::Client::SystemState systemState READ getSystemState WRITE setSystemState
+                   NOTIFY systemStateChanged)
+
+    Reflow::Client::SystemState getSystemState() const;
+    void setSystemState(const Reflow::Client::SystemState& systemState);
+signals:
+    void systemStateChanged(Reflow::Client::SystemState state);
+
 public:
     static void registerQmlType();
 

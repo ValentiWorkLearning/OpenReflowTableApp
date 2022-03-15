@@ -57,6 +57,19 @@ public:
     float k;
 };
 
+struct SystemState
+{
+private:
+    Q_GADGET
+public:
+    Q_PROPERTY(std::int32_t currentTemperature MEMBER currentTemperature)
+    Q_PROPERTY(QString reflowState MEMBER reflowState)
+    Q_PROPERTY(std::int32_t systemTime MEMBER systemTime)
+    std::uint32_t currentTemperature;
+    std::uint32_t systemTime;
+    QString reflowState;
+};
+
 class ReflowRestClient
 {
 
@@ -73,6 +86,7 @@ public:
     QCoro::Task<> selectActivePreset(QString presetId);
     QCoro::Task<> setRegulatorParams(const RegulatorParams& regulatorParams);
     QCoro::Task<RegulatorParams> getRegulatorParams();
+    QCoro::Task<SystemState> getSystemState();
     QCoro::Task<> startReflow();
     QCoro::Task<> stopReflow();
 
@@ -85,3 +99,4 @@ private:
 Q_DECLARE_METATYPE(Reflow::Client::Stage)
 Q_DECLARE_METATYPE(Reflow::Client::Preset)
 Q_DECLARE_METATYPE(Reflow::Client::RegulatorParams)
+Q_DECLARE_METATYPE(Reflow::Client::SystemState)

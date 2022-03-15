@@ -16,6 +16,10 @@ Item {
         AppModel.presetsModel.sheduleGetPresetStages(presetId)
     }
 
+    function cleanupRealtimeChart()
+    {
+        realtimeDataSeries.removePoints(0,realtimeDataSeries.count)
+    }
     Connections
     {
         target:  AppModel.presetsModel
@@ -26,6 +30,17 @@ Item {
             for(let presetStage of presetStages){
                 selectedPresetSeries.append(presetStage.duration,presetStage.temperature);
             }
+        }
+    }
+
+    Connections
+    {
+        target: AppModel.reflowController
+        function onSystemStateChanged(systemState)
+        {
+            let realtimeTemperature = AppModel.reflowController.systemState.currentTemperature;
+            let timepoint = AppModel.reflowController.systemState.systemTime;
+            realtimeDataSeries.append(timepoint,realtimeTemperature);
         }
     }
     ColumnLayout
@@ -91,7 +106,14 @@ Item {
                     onClicked:
                     {
                         AppModel.reflowController.stopReflow();
+                        cleanupRealtimeChart();
                     }
+                }
+                Label
+                {
+                    id:currentTemperatureLabel
+                    text: AppModel.reflowController.systemState.currentTemperature
+                     font.pixelSize: 48
                 }
             }
 
@@ -123,6 +145,12 @@ Item {
                 axisY:  axisYConstrain
                 axisX: axisXConstrain
                 name: AppModel.presetsModel.at(presetsCombobox.currentIndex).presetName
+            }
+            LineSeries {
+                id: realtimeDataSeries
+                axisY:  axisYConstrain
+                axisX: axisXConstrain
+                name:"Realtime plot"
             }
         }
 
