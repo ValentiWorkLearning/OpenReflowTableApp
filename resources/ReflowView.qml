@@ -118,7 +118,6 @@ Item {
         }
 
         ChartView {
-            title: "Line"
             Layout.fillWidth: true
             Layout.fillHeight: true
             antialiasing: true
