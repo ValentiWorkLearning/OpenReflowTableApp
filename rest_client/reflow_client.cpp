@@ -204,8 +204,10 @@ private:
         std::string_view endpoint,
         std::string_view requestPayload)
     {
-        auto* pReply = co_await m_nam->post(
-            QNetworkRequest{getFormattedUrl(commandsEndpoint)}, QByteArray{requestPayload.data()});
+        auto request = QNetworkRequest{getFormattedUrl(commandsEndpoint)};
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+
+        auto* pReply = co_await m_nam->post(request, QByteArray{requestPayload.data()});
 
         auto responseBody = pReply->readAll();
         pReply->deleteLater();
