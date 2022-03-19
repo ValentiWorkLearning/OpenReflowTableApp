@@ -51,7 +51,7 @@ private:
     {
         using namespace std::chrono_literals;
         QTimer stateTimer;
-        stateTimer.setInterval(200ms);
+        stateTimer.setInterval(400ms);
         stateTimer.start();
         while (true)
         {
