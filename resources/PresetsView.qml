@@ -75,7 +75,9 @@ Item {
                 implicitHeight: 48
                 Label{
                     text: presetName
+                    font.pointSize: 21
                     elide: Text.ElideRight;
+                    Layout.alignment: Qt.AlignVCenter
                 }
                 Item
                 {

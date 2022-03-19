@@ -38,13 +38,18 @@ Popup
             {
                 Layout.fillWidth:true;
             }
+            Column{
             TextField
             {
                 id: hysteresis
                 Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
-                placeholderText: qsTr("Hystresis")
                 text:  AppModel.reflowController.regulatorParams.hysteresis
                 font.weight: Font.DemiBold
+                validator: IntValidator{bottom:1; top:20}
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Hysteresis can be from 1 up to 20")
+            }
             }
         }
 
@@ -62,13 +67,15 @@ Popup
             {
                 id: k
                 Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
-                placeholderText: qsTr("k")
                 text:  AppModel.reflowController.regulatorParams.k
                 font.weight: Font.DemiBold
+                inputMethodHints: Qt.ImhFormattedNumbersOnly
+                validator: DoubleValidator{bottom:0.1; top:20}
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("k can be from 0.1 up to 20")
             }
         }
-
-
 
         RowLayout{
             Layout.fillWidth: true;
@@ -82,6 +89,7 @@ Popup
                 enabled: !k.empty && !hysteresis.empty && !AppModel.reflowController.systemState.isReflowRunning
                 onClicked:
                 {
+                    AppModel.reflowController.setRegulatorParams(hysteresis.text,k.text)
                 }
             }
 
