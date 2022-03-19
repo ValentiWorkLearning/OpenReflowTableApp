@@ -73,7 +73,7 @@ Item {
 
             let canApplyPresetIdFromState =
                 presetsCombobox.currentIndex ===-1
-            && AppModel.reflowController.systemState.activePresetId !== "";
+                && AppModel.reflowController.systemState.activePresetId !== "";
 
             if(!canApplyPresetIdFromState)
                 return;
@@ -93,82 +93,87 @@ Item {
             id: reflowRibbonLayout
             Layout.fillWidth: true
 
-            BackButton
-            {
-                onClicked: requestBackToHome();
-            }
-            ComboBox
-            {
-                id: presetsCombobox
-                implicitContentWidthPolicy: ComboBox.WidestText
-                hoverEnabled: true
-                enabled: !AppModel.reflowController.systemState.isReflowRunning;
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Available Presets")
-
-                textRole: "presetName"
-                model: AppModel.presetsModel
-                onCurrentIndexChanged:
+            ColumnLayout{
+                BackButton
                 {
-                    refreshPresetChartView(AppModel.presetsModel.at(presetsCombobox.currentIndex).presetId);
+                    onClicked: requestBackToHome();
+                }
+                ComboBox
+                {
+                    id: presetsCombobox
+                    implicitContentWidthPolicy: ComboBox.WidestText
+                    hoverEnabled: true
+                    enabled: !AppModel.reflowController.systemState.isReflowRunning;
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Available Presets")
+
+                    textRole: "presetName"
+                    model: AppModel.presetsModel
+                    onCurrentIndexChanged:
+                    {
+                        refreshPresetChartView(AppModel.presetsModel.at(presetsCombobox.currentIndex).presetId);
+                    }
                 }
             }
-            Button
-            {
-                id: startReflowButton
-                text: qsTr("START")
-                hoverEnabled: true
-                enabled: presetsCombobox.currentIndex !== -1 && !AppModel.reflowController.systemState.isReflowRunning;
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Start reflow process")
-                Material.background: Material.Green
-
-                onClicked:
+            ColumnLayout{
+                Button
                 {
-                    AppModel.reflowController.selectPreset(AppModel.presetsModel.at(presetsCombobox.currentIndex).presetId);
-                    AppModel.reflowController.startReflow();
+                    id: startReflowButton
+                    text: qsTr("START")
+                    hoverEnabled: true
+                    enabled: presetsCombobox.currentIndex !== -1 && !AppModel.reflowController.systemState.isReflowRunning;
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Start reflow process")
+                    Material.background: Material.Green
+
+                    onClicked:
+                    {
+                        AppModel.reflowController.selectPreset(AppModel.presetsModel.at(presetsCombobox.currentIndex).presetId);
+                        AppModel.reflowController.startReflow();
+                    }
+                }
+
+                Button
+                {
+                    id: stopReflowButton
+                    text: qsTr("STOP")
+                    enabled: AppModel.reflowController.systemState.isReflowRunning;
+                    hoverEnabled: true
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Stop reflow process")
+
+                    Material.background: Material.Red
+                    onClicked:
+                    {
+                        AppModel.reflowController.stopReflow();
+                        cleanupRealtimeChart();
+                    }
                 }
             }
-
-            Button
-            {
-                id: regulatorSettings
-                text: qsTr("REGULATOR")
-                hoverEnabled: true
-
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Change regulator settings")
-
-                onClicked:
+            ColumnLayout{
+                Label
                 {
-                    regulatorSettingsLoader.setSource(
-                        "qrc:/RegulatorSettingsPopup.qml"
-                    )
+                    id:currentTemperatureLabel
+                    text: AppModel.reflowController.systemState.currentTemperature
+                    font.pixelSize: 42
                 }
-            }
-
-            Button
-            {
-                id: stopReflowButton
-                text: qsTr("STOP")
-                enabled: AppModel.reflowController.systemState.isReflowRunning;
-                hoverEnabled: true
-                ToolTip.visible: hovered
-                ToolTip.text: qsTr("Stop reflow process")
-
-                Material.background: Material.Red
-                onClicked:
+                Button
                 {
-                    AppModel.reflowController.stopReflow();
-                    cleanupRealtimeChart();
+                    id: regulatorSettings
+                    text: qsTr("REGULATOR")
+                    hoverEnabled: true
+
+                    ToolTip.visible: hovered
+                    ToolTip.text: qsTr("Change regulator settings")
+
+                    onClicked:
+                    {
+                        regulatorSettingsLoader.setSource(
+                                    "qrc:/RegulatorSettingsPopup.qml"
+                                    )
+                    }
                 }
-            }
-            Label
-            {
-                id:currentTemperatureLabel
-                text: AppModel.reflowController.systemState.currentTemperature
-                font.pixelSize: 48
             }
 
         }
