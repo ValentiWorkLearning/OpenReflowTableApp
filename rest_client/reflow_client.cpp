@@ -231,7 +231,7 @@ private:
     template <typename... ExtraArgs>
     QUrl getFormattedUrl(std::string_view baseUrl, ExtraArgs&&... extraFormatArgs)
     {
-        return QString::fromStdString(fmt::format(baseUrl, m_serverUrlBase, extraFormatArgs...));
+        return QString::fromStdString(fmt::format(fmt::runtime(baseUrl), m_serverUrlBase, extraFormatArgs...));
     }
 
 private:
