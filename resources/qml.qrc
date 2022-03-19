@@ -8,5 +8,6 @@
         <file>BackButton.qml</file>
         <file>EditPresetPopup.qml</file>
         <file>icons/refresh.svg</file>
+        <file>RegulatorSettingsPopup.qml</file>
     </qresource>
 </RCC>

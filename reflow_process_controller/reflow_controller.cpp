@@ -35,11 +35,32 @@ public:
         return m_systemState;
     }
 
+
     void setSystemState(const Reflow::Client::SystemState& systemState)
     {
         m_systemState = systemState;
         emit m_pThis->systemStateChanged(m_systemState);
     }
+
+
+    void setRegulatorParams(const Reflow::Client::RegulatorParams& regulatorParams)
+    {
+        m_regulatorParams = regulatorParams;
+        emit m_pThis->regulatorParamsChanged(m_regulatorParams.value());
+    }
+
+    Reflow::Client::RegulatorParams getRegulatorParams()
+    {
+        if(!m_regulatorParams){
+            requestRegulatorParams();
+            return{};
+        }
+        else{
+            auto value = std::move(m_regulatorParams.value());
+            return value;
+        }
+    }
+
 
     void startWork()
     {
@@ -47,6 +68,12 @@ public:
     }
 
 private:
+
+    QCoro::Task<> requestRegulatorParams()
+    {
+        auto regulatorParams = co_await m_pRestClient->getRegulatorParams();
+        setRegulatorParams(regulatorParams);
+    }
     QCoro::Task<> requestSystemStateWork()
     {
         using namespace std::chrono_literals;
@@ -64,6 +91,7 @@ private:
 private:
     std::shared_ptr<Reflow::Client::ReflowRestClient> m_pRestClient;
     Reflow::Client::SystemState m_systemState;
+    std::optional<Reflow::Client::RegulatorParams> m_regulatorParams;
     ProcessController* m_pThis;
 };
 
@@ -103,9 +131,18 @@ Reflow::Client::SystemState ProcessController::getSystemState() const
     return m_pImpl->getSystemState();
 }
 
+Reflow::Client::RegulatorParams ProcessController::getRegulatorParams() const
+{
+    return m_pImpl->getRegulatorParams();
+}
+
 void ProcessController::setSystemState(const Reflow::Client::SystemState& systemState)
 {
     return m_pImpl->setSystemState(systemState);
 }
 
+void ProcessController::setRegulatorParams(const Reflow::Client::RegulatorParams& regulatorParams)
+{
+    return m_pImpl->setRegulatorParams(regulatorParams);
+}
 } // namespace Reflow

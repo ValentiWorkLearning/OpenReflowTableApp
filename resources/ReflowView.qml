@@ -41,6 +41,16 @@ Item {
         }
     }
 
+
+
+    Loader
+    {
+        id:regulatorSettingsLoader;
+        onLoaded:
+            item.open();
+    }
+
+
     Connections
     {
         target:  AppModel.presetsModel
@@ -120,6 +130,24 @@ Item {
                     AppModel.reflowController.startReflow();
                 }
             }
+
+            Button
+            {
+                id: regulatorSettings
+                text: qsTr("REGULATOR")
+                hoverEnabled: true
+
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Change regulator settings")
+
+                onClicked:
+                {
+                    regulatorSettingsLoader.setSource(
+                        "qrc:/RegulatorSettingsPopup.qml"
+                    )
+                }
+            }
+
             Button
             {
                 id: stopReflowButton
