@@ -213,17 +213,19 @@ private:
         std::string_view endpoint,
         std::string_view requestPayload)
     {
-        auto request = QNetworkRequest{getFormattedUrl(commandsEndpoint)};
+        auto request = QNetworkRequest{getFormattedUrl(endpoint)};
         request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
         auto* pReply = co_await m_nam->post(request, QByteArray{requestPayload.data()});
 
         auto responseBody = pReply->readAll();
         pReply->deleteLater();
-        if (!responseBody.isEmpty())
-            co_return nlohmann::json::parse(
+        if (!responseBody.isEmpty()){
+           auto parsedData =
+           nlohmann::json::parse(
                 std::string_view(responseBody.constData(), responseBody.length()));
-
+           co_return parsedData;
+        }
         co_return std::nullopt;
     }
 
