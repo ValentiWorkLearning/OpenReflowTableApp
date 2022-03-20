@@ -15,7 +15,7 @@ Popup
     property int editPresetId;
     property int presetIndex;
 
-    width: parent.width* 0.8;
+    width: parent.width* 0.9;
     height: parent.height* 0.8;
 
     parent: Overlay.overlay
@@ -45,7 +45,10 @@ Popup
             const medianTempreature = 150;
 
             stagesSeries.append(0, 0);
-            stagesSeries.append(medianTimepoint,medianTempreature)
+            stagesSeries.append(medianTimepoint,medianTempreature);
+
+            scatterSeries.append(0,0);
+            scatterSeries.append(medianTimepoint,medianTempreature);
             return;
         }
 
@@ -59,6 +62,7 @@ Popup
         let newStageY = lastPoint.y;
 
         stagesSeries.append(newStageX, newStageY);
+        scatterSeries.append(newStageX, newStageY);
     }
 
     Connections
@@ -71,8 +75,11 @@ Popup
                 return;
 
             stagesSeries.append(0,0);
+            scatterSeries.append(0,0);
+
             for(let presetStage of presetStages){
                 stagesSeries.append(presetStage.duration,presetStage.temperature);
+                scatterSeries.append(presetStage.duration,presetStage.temperature);
             }
         }
     }
@@ -107,6 +114,12 @@ Popup
                 font.pixelSize: 42
                 text: editChartview.selectedPoint?Math.round(editChartview.selectedPoint.y) : ""
             }
+            CheckBox
+            {
+                id:enableScatterChart
+                text: qsTr("Scatter")
+                checked: true;
+            }
             Button
             {
                 id:addNewChartpoint
@@ -135,7 +148,6 @@ Popup
             property real toleranceY: 15
 
             property var selectedPoint: undefined
-
             ValueAxis
             {
                 id: axisYConstrain
@@ -157,7 +169,15 @@ Popup
                 pointsVisible: true
                 name: AppModel.presetsModel.at(editReflowStages.presetIndex).presetName
             }
-
+            ScatterSeries
+            {
+                id:scatterSeries
+                axisY: axisYConstrain
+                axisX: axisXConstrain
+                pointsVisible: true
+                visible: enableScatterChart.checked
+                markerSize: 15
+            }
             MouseArea {
                 anchors.fill: parent
                 onPressed:(mouse)=>
@@ -190,6 +210,7 @@ Popup
 
                                           if(canReplace) {
                                               stagesSeries.replace(editChartview.selectedPoint.x, editChartview.selectedPoint.y, cp.x, cp.y);
+                                              scatterSeries.replace(editChartview.selectedPoint.x, editChartview.selectedPoint.y, cp.x, cp.y);
                                               editChartview.selectedPoint = cp;
                                           }
                                       }
