@@ -182,6 +182,7 @@ Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
             antialiasing: true
+            theme: ChartView.ChartThemeDark
 
             ValueAxis
             {
@@ -196,8 +197,6 @@ Item {
                 min: 0
                 max: 600
             }
-
-            theme: ChartView.ChartThemeDark
 
             LineSeries {
                 id: selectedPresetSeries

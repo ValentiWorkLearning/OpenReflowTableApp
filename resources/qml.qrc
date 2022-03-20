@@ -9,5 +9,6 @@
         <file>EditPresetPopup.qml</file>
         <file>icons/refresh.svg</file>
         <file>RegulatorSettingsPopup.qml</file>
+        <file>EditReflowStages.qml</file>
     </qresource>
 </RCC>

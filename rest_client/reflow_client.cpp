@@ -87,7 +87,7 @@ public:
         co_return result;
     }
 
-    QCoro::Task<> addStagesToPreset(QString presetId, const std::vector<Stage> stages)
+    QCoro::Task<> addStagesToPreset(QString presetId, const std::vector<Stage>& stages)
     {
         nlohmann::json payload;
         nlohmann::json stagesArray;
@@ -100,8 +100,17 @@ public:
         }
         payload["stages"] = stagesArray;
 
-        co_await executePostRequest(addPresetStagesEndpoint, payload.dump());
+        spdlog::info("Stages JSON payload:{}", payload.dump());
+
+        co_await executePutRequest(addPresetStagesEndpoint, payload.dump(), presetId.toStdString());
     }
+
+    QCoro::Task<> addStagesToPreset(QString presetId, QString stages)
+    {
+        co_await executePutRequest(
+            addPresetStagesEndpoint, stages.toStdString(), presetId.toStdString());
+    }
+
     QCoro::Task<QVector<Preset>> getAvailablePresets()
     {
         QVector<Preset> result;
@@ -211,29 +220,65 @@ private:
 
     QCoro::Task<std::optional<nlohmann::json>> executePostRequest(
         std::string_view endpoint,
-        std::string_view requestPayload)
+        std::string_view requestPayload,
+        std::optional<std::string> endpointFormatExtra = std::nullopt)
     {
-        auto request = QNetworkRequest{getFormattedUrl(endpoint)};
-        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
 
-        auto* pReply = co_await m_nam->post(request, QByteArray{requestPayload.data()});
+        auto* pReply = co_await m_nam->post(
+            buildRequest(endpoint, requestPayload, endpointFormatExtra),
+            QByteArray{requestPayload.data()});
 
         auto responseBody = pReply->readAll();
         pReply->deleteLater();
-        if (!responseBody.isEmpty()){
-           auto parsedData =
-           nlohmann::json::parse(
+        co_return handleRequestResponse(responseBody);
+    }
+
+    QCoro::Task<std::optional<nlohmann::json>> executePutRequest(
+        std::string_view endpoint,
+        std::string_view requestPayload,
+        std::optional<std::string> endpointFormatExtra = std::nullopt)
+    {
+
+        auto* pReply = co_await m_nam->put(
+            buildRequest(endpoint, requestPayload, endpointFormatExtra),
+            QByteArray{requestPayload.data()});
+
+        auto responseBody = pReply->readAll();
+        pReply->deleteLater();
+        co_return handleRequestResponse(responseBody);
+    }
+
+    QNetworkRequest buildRequest(
+        std::string_view endpoint,
+        std::string_view requestPayload,
+        std::optional<std::string> endpointFormatExtra = std::nullopt)
+    {
+        QNetworkRequest request{
+            endpointFormatExtra
+                ? QNetworkRequest{getFormattedUrl(endpoint, endpointFormatExtra.value())}
+                : QNetworkRequest{getFormattedUrl(endpoint)}};
+
+        request.setHeader(QNetworkRequest::ContentTypeHeader, "application/json");
+        return request;
+    }
+
+    std::optional<nlohmann::json> handleRequestResponse(const QByteArray& responseBody)
+    {
+        if (!responseBody.isEmpty())
+        {
+            auto parsedData = nlohmann::json::parse(
                 std::string_view(responseBody.constData(), responseBody.length()));
-           co_return parsedData;
+            return parsedData;
         }
-        co_return std::nullopt;
+        return std::nullopt;
     }
 
 private:
     template <typename... ExtraArgs>
     QUrl getFormattedUrl(std::string_view baseUrl, ExtraArgs&&... extraFormatArgs)
     {
-        return QString::fromStdString(fmt::format(fmt::runtime(baseUrl), m_serverUrlBase, extraFormatArgs...));
+        return QString::fromStdString(
+            fmt::format(fmt::runtime(baseUrl), m_serverUrlBase, extraFormatArgs...));
     }
 
 private:
@@ -252,7 +297,14 @@ QCoro::Task<std::uint64_t> ReflowRestClient::createNewPreset(const QString& pres
     co_return result;
 }
 
-QCoro::Task<> ReflowRestClient::addStagesToPreset(QString presetId, const std::vector<Stage> stages)
+QCoro::Task<> ReflowRestClient::addStagesToPreset(
+    QString presetId,
+    const std::vector<Stage>& stages)
+{
+    co_await m_pImpl->addStagesToPreset(presetId, stages);
+}
+
+QCoro::Task<> ReflowRestClient::addStagesToPreset(QString presetId, QString stages)
 {
     co_await m_pImpl->addStagesToPreset(presetId, stages);
 }

@@ -18,6 +18,13 @@ Item {
             item.open();
     }
 
+    Loader
+    {
+        id:editPresetElementLoader;
+        onLoaded:
+            item.open();
+    }
+
 
     ColumnLayout
     {
@@ -93,7 +100,16 @@ Item {
                     hoverEnabled: true
                     ToolTip.visible: hovered
                     ToolTip.text: qsTr("Edit preset")
-
+                    onClicked:
+                    {
+                        editPresetElementLoader.setSource(
+                                    "qrc:/EditReflowStages.qml",
+                                    {
+                                        editPresetId:AppModel.presetsModel.at(index).presetId,
+                                        presetIndex:index
+                                    }
+                        );
+                    }
                 }
             }
         }

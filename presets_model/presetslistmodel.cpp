@@ -1,6 +1,10 @@
 #include "presetslistmodel.h"
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QQmlEngine>
+
 #include <reflow_rest_client/reflow_client.hpp>
+#include <spdlog/spdlog.h>
 
 class PresetsListModel::PresetsListModelPrivate
 
@@ -46,6 +50,12 @@ public:
     {
         auto presetItems = co_await m_restClient->getPresetStages(presetId);
         emit q_ptr->presetStagesReady(presetItems);
+    }
+
+    QCoro::Task<> updatePresetStages(QString presetId, QString stagesList)
+    {
+        co_await m_restClient->addStagesToPreset(presetId, stagesList);
+        co_await getPresetStages(presetId);
     }
 
     std::optional<Reflow::Client::Preset> getPresetByIndex(int presetIndex)
@@ -135,6 +145,12 @@ void PresetsListModel::sheduleGetPresetStages(QString presetId)
 {
     m_pImpl->getPresetStages(presetId);
 }
+
+void PresetsListModel::updatePresetStages(QString presetId, QString stagesList)
+{
+    m_pImpl->updatePresetStages(presetId, stagesList);
+}
+
 PresetsListModel::TRoleNames PresetsListModel::roleNames() const
 {
     QHash<int, QByteArray> roles;

@@ -4,6 +4,7 @@
 #include <QAbstractListModel>
 
 #include <QVector>
+#include <QVariant>
 
 #include<memory>
 #include <reflow_rest_client/reflow_client.hpp>
@@ -28,7 +29,7 @@ public:
     Q_INVOKABLE Reflow::Client::Preset at(int index);
     Q_INVOKABLE void sheduleGetPresetStages(QString presetId);
     Q_INVOKABLE int itemsCount()const;
-
+    Q_INVOKABLE void updatePresetStages(QString presetId,QString stagesList);
     void refresh();
 
 public:

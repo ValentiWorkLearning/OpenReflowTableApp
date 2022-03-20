@@ -85,7 +85,8 @@ public:
 public:
     QCoro::Task<> testPingPongConnection();
     QCoro::Task<std::uint64_t> createNewPreset(const QString& presetName);
-    QCoro::Task<> addStagesToPreset(QString presetId, const std::vector<Stage> stages);
+    QCoro::Task<> addStagesToPreset(QString presetId, const std::vector<Stage>& stages);
+    QCoro::Task<> addStagesToPreset(QString presetId, QString stages);
     QCoro::Task<QVector<Stage>> getPresetStages(QString presetId);
     QCoro::Task<QVector<Preset>> getAvailablePresets();
     QCoro::Task<> selectActivePreset(QString presetId);
