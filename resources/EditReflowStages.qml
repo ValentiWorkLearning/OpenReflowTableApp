@@ -65,6 +65,28 @@ Popup
         scatterSeries.append(newStageX, newStageY);
     }
 
+    function getCheckItemPair(pointItemIndex)
+    {
+        let currentPoint = stagesSeries.at(pointItemIndex);
+        let seriesSize = stagesSeries.count;
+
+        let isExists = (itemIndex) =>
+        {
+            return itemIndex < seriesSize && itemIndex >= 0;
+        };
+
+        let nextIdx = pointItemIndex + 1;
+        let prevIdx = pointItemIndex===0? 0: pointItemIndex - 1;
+
+        if(isExists(nextIdx) && isExists(prevIdx))
+            return[stagesSeries.at(prevIdx),stagesSeries.at(nextIdx)];
+
+        if(isExists(prevIdx))
+            return[stagesSeries.at(prevIdx),null];
+
+        return [null,null];
+    }
+
     Connections
     {
         target:  AppModel.presetsModel
@@ -148,6 +170,8 @@ Popup
             property real toleranceY: 15
 
             property var selectedPoint: undefined
+            property var selectedPointIndex: undefined
+
             ValueAxis
             {
                 id: axisYConstrain
@@ -193,6 +217,7 @@ Popup
                                   if(canSelect)
                                   {
                                       editChartview.selectedPoint = p;
+                                      editChartview.selectedPointIndex = i;
                                       break;
                                   }
                               }
@@ -202,13 +227,25 @@ Popup
                                       if(editChartview.selectedPoint != undefined) {
                                           let p = Qt.point(mouse.x, mouse.y);
                                           let cp = editChartview.mapToValue(p);
+
+                                          let [previousItem,nextItem] = getCheckItemPair(editChartview.selectedPointIndex);
+                                          let hasToCompleteSnappingCheck = false;
+
+                                          if(previousItem)
+                                            hasToCompleteSnappingCheck = true;
+
                                           let canReplace =
                                           cp.x >= axisXConstrain.min
                                           && cp.x <= axisXConstrain.max
                                           && cp.y >= axisYConstrain.min
                                           && cp.y <= axisYConstrain.max;
 
-                                          if(canReplace) {
+
+                                          let isExtraCheckPassed = !hasToCompleteSnappingCheck?
+                                              true:cp.x > previousItem.x
+                                              && (!nextItem?true:cp.x < nextItem.x);
+
+                                          if(canReplace && isExtraCheckPassed) {
                                               stagesSeries.replace(editChartview.selectedPoint.x, editChartview.selectedPoint.y, cp.x, cp.y);
                                               scatterSeries.replace(editChartview.selectedPoint.x, editChartview.selectedPoint.y, cp.x, cp.y);
                                               editChartview.selectedPoint = cp;
@@ -218,6 +255,7 @@ Popup
 
                 onReleased: {
                     editChartview.selectedPoint = undefined;
+                    editChartview.selectedPointIndex = undefined;
                 }
             }
 
