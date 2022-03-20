@@ -183,6 +183,7 @@ Item {
             Layout.fillHeight: true
             antialiasing: true
             theme: ChartView.ChartThemeDark
+            animationOptions:ChartView.AllAnimations
 
             ValueAxis
             {

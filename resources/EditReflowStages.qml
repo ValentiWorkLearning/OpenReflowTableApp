@@ -165,6 +165,8 @@ Popup
             Layout.fillWidth: true;
             antialiasing: true
             theme: ChartView.ChartThemeDark
+            animationOptions:ChartView.AllAnimations
+            legend.visible: false;
 
             property real toleranceX: 15
             property real toleranceY: 15
