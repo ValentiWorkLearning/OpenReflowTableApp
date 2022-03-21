@@ -35,13 +35,11 @@ public:
         return m_systemState;
     }
 
-
     void setSystemState(const Reflow::Client::SystemState& systemState)
     {
         m_systemState = systemState;
         emit m_pThis->systemStateChanged(m_systemState);
     }
-
 
     void setRegulatorParams(const Reflow::Client::RegulatorParams& regulatorParams)
     {
@@ -49,18 +47,28 @@ public:
         emit m_pThis->regulatorParamsChanged(m_regulatorParams.value());
     }
 
+    QCoro::Task<> setRegulatorParams(QString k, QString hysteresis)
+    {
+        auto params = Reflow::Client::RegulatorParams{
+            .hysteresis = static_cast<std::uint32_t>(hysteresis.toUInt()), .k = k.toFloat()};
+
+        co_await m_pRestClient->setRegulatorParams(params);
+        co_await requestRegulatorParams();
+    }
+
     Reflow::Client::RegulatorParams getRegulatorParams()
     {
-        if(!m_regulatorParams){
+        if (!m_regulatorParams)
+        {
             requestRegulatorParams();
-            return{};
+            return {};
         }
-        else{
+        else
+        {
             auto value = std::move(m_regulatorParams.value());
             return value;
         }
     }
-
 
     void startWork()
     {
@@ -68,7 +76,6 @@ public:
     }
 
 private:
-
     QCoro::Task<> requestRegulatorParams()
     {
         auto regulatorParams = co_await m_pRestClient->getRegulatorParams();
@@ -117,6 +124,11 @@ void ProcessController::stopReflow()
 void ProcessController::selectPreset(QString presetId)
 {
     m_pImpl->selectPreset(presetId);
+}
+
+void ProcessController::setRegulatorParams(QString k, QString hysteresis)
+{
+    m_pImpl->setRegulatorParams(k, hysteresis);
 }
 
 void ProcessController::registerQmlType()

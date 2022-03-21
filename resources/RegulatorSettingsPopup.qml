@@ -89,7 +89,8 @@ Popup
                 enabled: !k.empty && !hysteresis.empty && !AppModel.reflowController.systemState.isReflowRunning
                 onClicked:
                 {
-                    AppModel.reflowController.setRegulatorParams(hysteresis.text,k.text)
+                    AppModel.reflowController.setRegulatorParams(k.text,hysteresis.text);
+                    regulatorSettingsPopup.close();
                 }
             }
 
