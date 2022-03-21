@@ -1,6 +1,3 @@
-[submodule "3rdparty/drogon"]
-	path = 3rdparty/drogon
-	url = https://github.com/drogonframework/drogon.git
 [submodule "3rdparty/qcoro"]
 	path = 3rdparty/qcoro
 	url = https://github.com/danvratil/qcoro.git
