@@ -12,7 +12,7 @@ Popup
 {
     id: editReflowStages
 
-    property int editPresetId;
+    property string editPresetId;
     property int presetIndex;
 
     width: parent.width* 0.9;
@@ -290,7 +290,7 @@ Popup
             Button
             {
                 id: cancelButton;
-                text: "Cancel"
+                text: qsTr("Cancel")
                 onClicked:
                 {
                     editReflowStages.close();
