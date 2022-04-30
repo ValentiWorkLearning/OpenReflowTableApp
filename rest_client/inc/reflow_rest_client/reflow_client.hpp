@@ -63,12 +63,14 @@ private:
     Q_GADGET
 public:
     Q_PROPERTY(std::int32_t currentTemperature MEMBER currentTemperature)
+    Q_PROPERTY(std::int32_t surroundingTemperature MEMBER surroundingTemperature)
     Q_PROPERTY(QString reflowState MEMBER reflowState)
     Q_PROPERTY(QString activePresetId MEMBER activePresetId)
     Q_PROPERTY(std::int32_t systemTime MEMBER systemTime)
     Q_PROPERTY(bool isReflowRunning MEMBER isRunning)
 
     std::uint32_t currentTemperature;
+    std::uint32_t surroundingTemperature;
     std::uint32_t systemTime;
     QString reflowState;
     QString activePresetId;

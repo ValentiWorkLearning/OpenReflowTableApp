@@ -187,7 +187,10 @@ public:
     {
         SystemState state{};
         auto telemetryData = co_await executeGetRequest(telemetryEndpoint);
+
         state.currentTemperature = telemetryData["temperature-data"].get<std::int32_t>();
+        state.surroundingTemperature = telemetryData["surrounding-temperature"].get<std::int32_t>();
+
         state.systemTime = telemetryData["system-time"].get<std::uint32_t>();
         state.isRunning = telemetryData["is-reflow-running"].get<bool>();
 

@@ -152,11 +152,19 @@ Item {
                 }
             }
             ColumnLayout{
-                Label
-                {
-                    id:currentTemperatureLabel
-                    text: AppModel.reflowController.systemState.currentTemperature
-                    font.pixelSize: 42
+                RowLayout{
+                    Label
+                    {
+                        id:currentTemperatureLabel
+                        text: AppModel.reflowController.systemState.currentTemperature
+                        font.pixelSize: 42
+                    }
+                    Label
+                    {
+                        id:surroundingTemperatureLabel
+                        text: AppModel.reflowController.systemState.surroundingTemperature
+                        font.pixelSize: 42
+                    }
                 }
                 Button
                 {
