@@ -1,6 +1,6 @@
 #pragma once
 
-#include <qcoro/task.h>
+#include <qcoro/qcorotask.h>
 
 #include <chrono>
 #include <cstdint>
@@ -94,7 +94,7 @@ public:
     QCoro::Task<> selectActivePreset(QString presetId);
     QCoro::Task<> setRegulatorParams(const RegulatorParams& regulatorParams);
     QCoro::Task<RegulatorParams> getRegulatorParams();
-    QCoro::Task<SystemState> getSystemState();
+    QCoro::Task<std::optional<SystemState>> getSystemState();
     QCoro::Task<> startReflow();
     QCoro::Task<> stopReflow();
 

@@ -11,7 +11,7 @@ public:
     ProcessControllerImpl(
         std::shared_ptr<Reflow::Client::ReflowRestClient> pRestClient,
         ProcessController* pThis)
-        : m_pRestClient{pRestClient}, m_pThis{pThis}
+        : m_pRestClient{pRestClient}, m_pThis{pThis},m_systemState{},m_regulatorParams{}, m_hasConnection{false}
     {
     }
 
@@ -75,6 +75,11 @@ public:
         requestSystemStateWork();
     }
 
+    bool hasConnection()const
+    {
+        return m_hasConnection;
+    }
+
 private:
     QCoro::Task<> requestRegulatorParams()
     {
@@ -91,7 +96,14 @@ private:
         {
             co_await stateTimer;
             auto systemState = co_await m_pRestClient->getSystemState();
-            setSystemState(systemState);
+            if (!systemState.has_value())
+            {
+                m_hasConnection = false;
+            }
+            else {
+                m_hasConnection = true;
+                setSystemState(systemState.value());
+            }
         }
     }
 
@@ -100,6 +112,7 @@ private:
     Reflow::Client::SystemState m_systemState;
     std::optional<Reflow::Client::RegulatorParams> m_regulatorParams;
     ProcessController* m_pThis;
+    bool m_hasConnection;
 };
 
 ProcessController::ProcessController(
@@ -156,5 +169,10 @@ void ProcessController::setSystemState(const Reflow::Client::SystemState& system
 void ProcessController::setRegulatorParams(const Reflow::Client::RegulatorParams& regulatorParams)
 {
     return m_pImpl->setRegulatorParams(regulatorParams);
+}
+
+bool ProcessController::hasConnection()const
+{
+    return m_pImpl->hasConnection();
 }
 } // namespace Reflow

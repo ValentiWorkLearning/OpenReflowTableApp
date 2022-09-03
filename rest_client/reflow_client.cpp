@@ -1,7 +1,7 @@
 #include <reflow_rest_client/reflow_client.hpp>
 
 #include <qcoro/network/qcoronetworkreply.h>
-#include <qcoro/task.h>
+#include <qcoro/qcorotask.h>
 
 #include <QByteArray>
 #include <QNetworkAccessManager>
@@ -115,8 +115,11 @@ public:
     {
         QVector<Preset> result;
         auto parsedData = co_await executeGetRequest(allPresetsEndpoint);
+        
+        if (!parsedData.has_value())
+            co_return result;
 
-        const auto& resultArray = parsedData.get_ref<const nlohmann::json::array_t&>();
+        const auto& resultArray = parsedData.value().get_ref<const nlohmann::json::array_t&>();
         for (auto preset : resultArray)
         {
             result.push_back(
@@ -149,9 +152,11 @@ public:
 
         std::vector<Preset> result;
         auto parsedData = co_await executeGetRequest(regulatorEndpoint);
+        if (!parsedData.has_value())
+            co_return params;
 
-        params.hysteresis = parsedData["hysteresis"].get<std::uint32_t>();
-        params.k = parsedData["k"].get<float>();
+        params.hysteresis = parsedData.value()["hysteresis"].get<std::uint32_t>();
+        params.k = parsedData.value()["k"].get<float>();
         co_return params;
     }
 
@@ -172,7 +177,11 @@ public:
     {
         QVector<Stage> stagesResult;
         auto presetData = co_await executeGetRequest(presetInfoEndpoint, presetId.toStdString());
-        const auto& stagesArray = presetData["stages"].get_ref<const nlohmann::json::array_t&>();
+
+        if (!presetData)
+            co_return stagesResult;
+
+        const auto& stagesArray = presetData.value()["stages"].get_ref<const nlohmann::json::array_t&>();
         for (const auto& stageItem : stagesArray)
         {
             stagesResult.push_back(
@@ -183,10 +192,14 @@ public:
         co_return stagesResult;
     }
 
-    QCoro::Task<SystemState> getSystemState()
+    QCoro::Task<std::optional<SystemState>> getSystemState()
     {
         SystemState state{};
-        auto telemetryData = co_await executeGetRequest(telemetryEndpoint);
+        auto telemetryDataOpt{ co_await executeGetRequest(telemetryEndpoint) };
+
+        if (!telemetryDataOpt)
+            co_return std::nullopt;
+        const auto& telemetryData{ telemetryDataOpt.value() };
 
         state.currentTemperature = telemetryData["temperature-data"].get<std::int32_t>();
         state.surroundingTemperature = telemetryData["surrounding-temperature"].get<std::int32_t>();
@@ -206,15 +219,26 @@ public:
 
 private:
     template <typename... ExtraArgs>
-    QCoro::Task<nlohmann::json> executeGetRequest(
+    QCoro::Task<std::optional<nlohmann::json>> executeGetRequest(
         std::string_view endpoint,
         ExtraArgs&&... extraArgs)
     {
+        constexpr int kRequestTimeoutMs{ 400 };
+
+        auto request{ QNetworkRequest{getFormattedUrl(endpoint, extraArgs...)} };
+        request.setTransferTimeout(kRequestTimeoutMs);
+
         auto* pReply =
-            co_await m_nam->get(QNetworkRequest{getFormattedUrl(endpoint, extraArgs...)});
+            co_await m_nam->get(request);
         auto replyData = pReply->readAll();
 
         pReply->deleteLater();
+
+        if (replyData.isEmpty())
+        {
+            co_return std::nullopt;
+        }
+
         auto parsedData =
             nlohmann::json::parse(std::string_view(replyData.constData(), replyData.length()));
 
@@ -350,7 +374,7 @@ QCoro::Task<> ReflowRestClient::stopReflow()
     co_await m_pImpl->sendCommandToServer(Reflow::Commands::kStop);
 }
 
-QCoro::Task<SystemState> ReflowRestClient::getSystemState()
+QCoro::Task<std::optional<SystemState>> ReflowRestClient::getSystemState()
 {
     auto systemState = co_await m_pImpl->getSystemState();
     co_return systemState;

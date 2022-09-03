@@ -1,0 +1,1 @@
+set (CMAKE_PREFIX_PATH "C://Qt//6.3.1//msvc2019_64//lib//cmake")

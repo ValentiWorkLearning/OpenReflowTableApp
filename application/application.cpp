@@ -37,6 +37,7 @@ public:
         m_reflowProcessController = std::make_unique<Reflow::ProcessController>(m_restClient);
 
         _qmlEngine.setObjectOwnership(m_presetsModel.get(), QQmlEngine::CppOwnership);
+        _qmlEngine.setObjectOwnership(m_reflowProcessController.get(), QQmlEngine::CppOwnership);
 
         qmlRegisterSingletonType<App::AppImpl>(
             "app.root_model", 1, 0, "AppModel", [this](QQmlEngine* engine, QJSEngine*) -> QObject* {

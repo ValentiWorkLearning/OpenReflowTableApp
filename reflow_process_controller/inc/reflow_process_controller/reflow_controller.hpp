@@ -18,6 +18,7 @@ public:
     Q_INVOKABLE void startReflow();
     Q_INVOKABLE void stopReflow();
     Q_INVOKABLE void selectPreset(QString presetId);
+    Q_INVOKABLE bool hasConnection()const;
 
     Q_INVOKABLE void setRegulatorParams(QString k, QString hysteresis);
 

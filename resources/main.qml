@@ -106,4 +106,11 @@ ApplicationWindow  {
             ovenStackView.push(reflowView);
         }
     }
+    ConnectionHandler
+    {
+        id: connectionHandler
+        anchors.top: ovenStackView.bottom;
+        anchors.right: parent.right;
+        anchors.left: parent.left;
+    }
 }
