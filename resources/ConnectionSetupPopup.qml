@@ -9,7 +9,7 @@ Popup
 {
     id: connectionSetupPopup
     width: parent.width* 0.7;
-    height: parent.height* 0.5;
+    height: parent.height* 0.4;
 
     parent: Overlay.overlay
 
