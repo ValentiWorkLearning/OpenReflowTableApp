@@ -64,8 +64,8 @@ namespace Reflow::Client
 class ReflowRestClient::ReflowRestClientImpl
 {
 public:
-    ReflowRestClientImpl(const std::string& serverUrlBase)
-        : m_serverUrlBase{serverUrlBase}, m_nam{NamHolder::Instance().getNam()}
+    ReflowRestClientImpl()
+        : m_serverUrlBase{}, m_nam{NamHolder::Instance().getNam()}
     {
     }
 
@@ -215,6 +215,16 @@ public:
         state.activePresetId = QString::number(presetIdOpt.get<std::uint64_t>());
 
         co_return state;
+    }
+
+    [[nodiscard]] QString getDeviceAddress() const
+    {
+        return QString::fromStdString(m_serverUrlBase);
+    }
+
+    void setDeviceAddress(const QString& deviceAddress)
+    {
+        m_serverUrlBase = deviceAddress.toStdString();
     }
 
 private:
@@ -380,8 +390,19 @@ QCoro::Task<std::optional<SystemState>> ReflowRestClient::getSystemState()
     co_return systemState;
 }
 
-ReflowRestClient::ReflowRestClient(const std::string& serverUrlBase)
-    : m_pImpl{std::make_unique<ReflowRestClientImpl>(serverUrlBase)}
+[[nodiscard]] QString ReflowRestClient::getDeviceAddress() const
+{
+    return m_pImpl->getDeviceAddress();
+}
+
+void ReflowRestClient::setDeviceAddress(const QString& deviceAddress)
+{
+    return m_pImpl->setDeviceAddress(deviceAddress);
+}
+
+
+ReflowRestClient::ReflowRestClient()
+    : m_pImpl{std::make_unique<ReflowRestClientImpl>()}
 {
 }
 

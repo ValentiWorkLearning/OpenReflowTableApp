@@ -81,7 +81,7 @@ class ReflowRestClient
 {
 
 public:
-    ReflowRestClient(const std::string& serverUrlBase);
+    ReflowRestClient();
     ~ReflowRestClient();
 
 public:
@@ -97,6 +97,9 @@ public:
     QCoro::Task<std::optional<SystemState>> getSystemState();
     QCoro::Task<> startReflow();
     QCoro::Task<> stopReflow();
+
+    [[nodiscard]] QString getDeviceAddress() const;
+    void setDeviceAddress(const QString& deviceAddress);
 
 private:
     class ReflowRestClientImpl;

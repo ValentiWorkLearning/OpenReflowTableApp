@@ -11,5 +11,6 @@
         <file>RegulatorSettingsPopup.qml</file>
         <file>EditReflowStages.qml</file>
         <file>ConnectionHandler.qml</file>
+        <file>ConnectionSetupPopup.qml</file>
     </qresource>
 </RCC>

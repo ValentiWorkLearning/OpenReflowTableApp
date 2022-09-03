@@ -71,12 +71,24 @@ ApplicationWindow  {
         }
     }
 
+    ColumnLayout
+    {
+        anchors.fill:parent
 
-    StackView {
-        id: ovenStackView
-        initialItem: mainView
-        anchors.fill: parent
+        StackView {
+            id: ovenStackView
+            initialItem: mainView
+            Layout.fillWidth:true
+            Layout.fillHeight:true
+        }
+
+        ConnectionHandler
+        {
+            id: connectionHandler
+            Layout.fillWidth:true
+        }
     }
+    
 
     Component
     {
@@ -105,12 +117,5 @@ ApplicationWindow  {
         onReflowProcessClicked:{
             ovenStackView.push(reflowView);
         }
-    }
-    ConnectionHandler
-    {
-        id: connectionHandler
-        anchors.top: ovenStackView.bottom;
-        anchors.right: parent.right;
-        anchors.left: parent.left;
     }
 }
