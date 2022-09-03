@@ -1,6 +1,6 @@
 #pragma once
 
-#include <qcoro/task.h>
+#include <qcoro/qcorotask.h>
 
 #include <chrono>
 #include <cstdint>
@@ -81,7 +81,7 @@ class ReflowRestClient
 {
 
 public:
-    ReflowRestClient(const std::string& serverUrlBase);
+    ReflowRestClient();
     ~ReflowRestClient();
 
 public:
@@ -94,9 +94,12 @@ public:
     QCoro::Task<> selectActivePreset(QString presetId);
     QCoro::Task<> setRegulatorParams(const RegulatorParams& regulatorParams);
     QCoro::Task<RegulatorParams> getRegulatorParams();
-    QCoro::Task<SystemState> getSystemState();
+    QCoro::Task<std::optional<SystemState>> getSystemState();
     QCoro::Task<> startReflow();
     QCoro::Task<> stopReflow();
+
+    [[nodiscard]] QString getDeviceAddress() const;
+    void setDeviceAddress(const QString& deviceAddress);
 
 private:
     class ReflowRestClientImpl;

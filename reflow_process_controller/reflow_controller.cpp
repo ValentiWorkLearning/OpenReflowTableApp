@@ -11,7 +11,11 @@ public:
     ProcessControllerImpl(
         std::shared_ptr<Reflow::Client::ReflowRestClient> pRestClient,
         ProcessController* pThis)
-        : m_pRestClient{pRestClient}, m_pThis{pThis}
+        : m_pRestClient{pRestClient}
+        , m_pThis{pThis}
+        , m_systemState{}
+        , m_regulatorParams{}
+        , m_hasConnection{false}
     {
     }
 
@@ -75,6 +79,20 @@ public:
         requestSystemStateWork();
     }
 
+    bool hasConnection() const
+    {
+        return m_hasConnection;
+    }
+
+    [[nodiscard]] QString getDeviceAddress() const
+    {
+        return m_pRestClient->getDeviceAddress();
+    }
+    void setDeviceAddress(const QString& deviceAddress)
+    {
+        return m_pRestClient->setDeviceAddress(deviceAddress);
+    }
+
 private:
     QCoro::Task<> requestRegulatorParams()
     {
@@ -91,7 +109,33 @@ private:
         {
             co_await stateTimer;
             auto systemState = co_await m_pRestClient->getSystemState();
-            setSystemState(systemState);
+            if (!systemState.has_value())
+            {
+                setConnectionUnavailable();
+            }
+            else
+            {
+                setConnectionAvailable();
+                setSystemState(systemState.value());
+            }
+        }
+    }
+
+    void setConnectionUnavailable()
+    {
+        if (m_hasConnection)
+        {
+            m_hasConnection = false;
+            emit m_pThis->connectionStatusChanged();
+        }
+    }
+
+    void setConnectionAvailable()
+    {
+        if (!m_hasConnection)
+        {
+            m_hasConnection = true;
+            emit m_pThis->connectionStatusChanged();
         }
     }
 
@@ -100,6 +144,7 @@ private:
     Reflow::Client::SystemState m_systemState;
     std::optional<Reflow::Client::RegulatorParams> m_regulatorParams;
     ProcessController* m_pThis;
+    bool m_hasConnection;
 };
 
 ProcessController::ProcessController(
@@ -157,4 +202,20 @@ void ProcessController::setRegulatorParams(const Reflow::Client::RegulatorParams
 {
     return m_pImpl->setRegulatorParams(regulatorParams);
 }
+
+bool ProcessController::getConnectionState() const
+{
+    return m_pImpl->hasConnection();
+}
+
+QString ProcessController::getDeviceAddress() const
+{
+    return m_pImpl->getDeviceAddress();
+}
+
+void ProcessController::setDeviceAddress(const QString& deviceAddress)
+{
+    return m_pImpl->setDeviceAddress(deviceAddress);
+}
+
 } // namespace Reflow

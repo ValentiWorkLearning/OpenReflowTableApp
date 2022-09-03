@@ -71,12 +71,24 @@ ApplicationWindow  {
         }
     }
 
+    ColumnLayout
+    {
+        anchors.fill:parent
 
-    StackView {
-        id: ovenStackView
-        initialItem: mainView
-        anchors.fill: parent
+        StackView {
+            id: ovenStackView
+            initialItem: mainView
+            Layout.fillWidth:true
+            Layout.fillHeight:true
+        }
+
+        ConnectionHandler
+        {
+            id: connectionHandler
+            Layout.fillWidth:true
+        }
     }
+    
 
     Component
     {

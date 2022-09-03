@@ -30,13 +30,14 @@ public:
 
     void addContextProperties(QQmlApplicationEngine& _qmlEngine)
     {
-        m_restClient = std::make_shared<Reflow::Client::ReflowRestClient>("192.168.0.116:8086");
+        m_restClient = std::make_shared<Reflow::Client::ReflowRestClient>();
         m_restClient->testPingPongConnection();
 
         m_presetsModel = std::make_unique<PresetsListModel>(m_restClient);
         m_reflowProcessController = std::make_unique<Reflow::ProcessController>(m_restClient);
 
         _qmlEngine.setObjectOwnership(m_presetsModel.get(), QQmlEngine::CppOwnership);
+        _qmlEngine.setObjectOwnership(m_reflowProcessController.get(), QQmlEngine::CppOwnership);
 
         qmlRegisterSingletonType<App::AppImpl>(
             "app.root_model", 1, 0, "AppModel", [this](QQmlEngine* engine, QJSEngine*) -> QObject* {

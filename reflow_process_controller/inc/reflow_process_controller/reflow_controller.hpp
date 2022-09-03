@@ -19,6 +19,10 @@ public:
     Q_INVOKABLE void stopReflow();
     Q_INVOKABLE void selectPreset(QString presetId);
 
+
+    Q_PROPERTY(bool connectionStatus READ getConnectionState NOTIFY connectionStatusChanged)
+    Q_PROPERTY(QString deviceAddress READ getDeviceAddress WRITE setDeviceAddress)
+
     Q_INVOKABLE void setRegulatorParams(QString k, QString hysteresis);
 
     Q_PROPERTY(Reflow::Client::SystemState systemState READ getSystemState WRITE setSystemState
@@ -26,14 +30,20 @@ public:
     Q_PROPERTY(Reflow::Client::RegulatorParams regulatorParams READ getRegulatorParams WRITE
                    setRegulatorParams NOTIFY regulatorParamsChanged)
 
-    Reflow::Client::SystemState getSystemState() const;
-    Reflow::Client::RegulatorParams getRegulatorParams() const;
+    [[nodiscard]] Reflow::Client::SystemState getSystemState() const;
+    [[nodiscard]] Reflow::Client::RegulatorParams getRegulatorParams() const;
 
     void setSystemState(const Reflow::Client::SystemState& systemState);
     void setRegulatorParams(const Reflow::Client::RegulatorParams& regulatorParams);
+    bool getConnectionState() const;
+
+    [[nodiscard]] QString getDeviceAddress() const;
+    void setDeviceAddress(const QString& deviceAddress);
+
 signals:
     void systemStateChanged(Reflow::Client::SystemState state);
     void regulatorParamsChanged(Reflow::Client::RegulatorParams state);
+    void connectionStatusChanged();
 
 public:
     static void registerQmlType();

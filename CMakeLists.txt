@@ -136,20 +136,20 @@ target_compile_features(
 target_link_libraries(OpenOvenApp PRIVATE application)
 set(TARGET_NAME OpenOvenApp)
 
-if (WIN32)
-    get_target_property(QT6_QMAKE_EXECUTABLE Qt6::qmake IMPORTED_LOCATION)
-    get_filename_component(QT6_WINDEPLOYQT_EXECUTABLE ${QT6_QMAKE_EXECUTABLE} PATH)
-    set(QT6_WINDEPLOYQT_EXECUTABLE "${QT6_WINDEPLOYQT_EXECUTABLE}/windeployqt.exe")
-
-    add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-       COMMAND ${QT6_WINDEPLOYQT_EXECUTABLE} --qmldir ${CMAKE_SOURCE_DIR} "$<$<CONFIG:Debug>:--debug>$<$<CONFIG:Release>:--release>" --no-compiler-runtime --no-translations $<TARGET_FILE_DIR:${TARGET_NAME}>)
-
-   include(InstallRequiredSystemLibraries)
-      foreach(lib ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
-          get_filename_component(filename "${lib}" NAME)
-          add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
-              COMMAND "${CMAKE_COMMAND}" -E
-                  copy_if_different "${lib}" \"$<TARGET_FILE_DIR:${TARGET_NAME}>\"
-          )
-      endforeach()
-endif(WIN32)
+# if (WIN32)
+#     get_target_property(QT6_QMAKE_EXECUTABLE Qt6::qmake IMPORTED_LOCATION)
+#     get_filename_component(QT6_WINDEPLOYQT_EXECUTABLE ${QT6_QMAKE_EXECUTABLE} PATH)
+#     set(QT6_WINDEPLOYQT_EXECUTABLE "${QT6_WINDEPLOYQT_EXECUTABLE}/windeployqt.exe")
+# 
+#     add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+#        COMMAND ${QT6_WINDEPLOYQT_EXECUTABLE} --qmldir ${CMAKE_SOURCE_DIR} "$<$<CONFIG:Debug>:--debug>$<$<CONFIG:Release>:--release>" --no-compiler-runtime --no-translations $<TARGET_FILE_DIR:${TARGET_NAME}>)
+# 
+#    include(InstallRequiredSystemLibraries)
+#       foreach(lib ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
+#           get_filename_component(filename "${lib}" NAME)
+#           add_custom_command(TARGET ${TARGET_NAME} POST_BUILD
+#               COMMAND "${CMAKE_COMMAND}" -E
+#                   copy_if_different "${lib}" \"$<TARGET_FILE_DIR:${TARGET_NAME}>\"
+#           )
+#       endforeach()
+# endif(WIN32)
