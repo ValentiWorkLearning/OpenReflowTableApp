@@ -29,6 +29,7 @@ Rectangle
 	Label
 	{
 		anchors.centerIn:parent
+		font.pixelSize: 18
 		text: AppModel.reflowController.connectionStatus? qsTr("Device is connected"):qsTr("Can't connect to the device") 
 	}
 
