@@ -31,6 +31,7 @@ public:
     void addContextProperties(QQmlApplicationEngine& _qmlEngine)
     {
         m_restClient = std::make_shared<Reflow::Client::ReflowRestClient>();
+        m_restClient->setDeviceAddress("localhost:8086");
         m_restClient->testPingPongConnection();
 
         m_presetsModel = std::make_unique<PresetsListModel>(m_restClient);
