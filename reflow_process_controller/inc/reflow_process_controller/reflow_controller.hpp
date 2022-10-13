@@ -2,6 +2,8 @@
 #include <QObject>
 #include <memory>
 #include <reflow_rest_client/reflow_client.hpp>
+#include <qcoro/qml/qcoroqmltask.h>
+
 namespace Reflow
 {
 
@@ -19,7 +21,6 @@ public:
     Q_INVOKABLE void stopReflow();
     Q_INVOKABLE void selectPreset(QString presetId);
 
-
     Q_PROPERTY(bool connectionStatus READ getConnectionState NOTIFY connectionStatusChanged)
     Q_PROPERTY(QString deviceAddress READ getDeviceAddress WRITE setDeviceAddress)
 
@@ -27,11 +28,10 @@ public:
 
     Q_PROPERTY(Reflow::Client::SystemState systemState READ getSystemState WRITE setSystemState
                    NOTIFY systemStateChanged)
-    Q_PROPERTY(Reflow::Client::RegulatorParams regulatorParams READ getRegulatorParams WRITE
-                   setRegulatorParams NOTIFY regulatorParamsChanged)
+
+    Q_INVOKABLE QCoro::QmlTask requestRegulatorParams();
 
     [[nodiscard]] Reflow::Client::SystemState getSystemState() const;
-    [[nodiscard]] Reflow::Client::RegulatorParams getRegulatorParams() const;
 
     void setSystemState(const Reflow::Client::SystemState& systemState);
     void setRegulatorParams(const Reflow::Client::RegulatorParams& regulatorParams);
@@ -42,7 +42,6 @@ public:
 
 signals:
     void systemStateChanged(Reflow::Client::SystemState state);
-    void regulatorParamsChanged(Reflow::Client::RegulatorParams state);
     void connectionStatusChanged();
 
 public:

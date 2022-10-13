@@ -11,6 +11,7 @@ target_link_libraries(
     PUBLIC
     QCoro6::Coro
     QCoro6::Network
+    QCoro6::Qml 
     nlohmann_json::nlohmann_json
     fmt::fmt
     spdlog::spdlog

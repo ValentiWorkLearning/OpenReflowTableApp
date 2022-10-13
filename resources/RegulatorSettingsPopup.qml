@@ -24,10 +24,12 @@ Popup
     focus: true
     closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutsideParent
 
+    property bool settingsLoaded: false;
+
     ColumnLayout
     {
         anchors.fill: parent;
-
+        visible:settingsLoaded;
         RowLayout
         {
             Label
@@ -43,7 +45,7 @@ Popup
             {
                 id: hysteresis
                 Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
-                text:  AppModel.reflowController.regulatorParams.hysteresis
+                text:""
                 font.weight: Font.DemiBold
                 validator: IntValidator{bottom:1; top:20}
                 hoverEnabled: true
@@ -65,9 +67,9 @@ Popup
             }
             TextField
             {
-                id: k
+                id: kCoef
                 Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
-                text:  AppModel.reflowController.regulatorParams.k
+                text: ""
                 font.weight: Font.DemiBold
                 inputMethodHints: Qt.ImhFormattedNumbersOnly
                 validator: DoubleValidator{bottom:0.1; top:20}
@@ -86,10 +88,10 @@ Popup
             {
                 id: addButton;
                 text: qsTr("Apply")
-                enabled: !k.empty && !hysteresis.empty && !AppModel.reflowController.systemState.isReflowRunning
+                enabled: !kCoef.empty && !hysteresis.empty && !AppModel.reflowController.systemState.isReflowRunning
                 onClicked:
                 {
-                    AppModel.reflowController.setRegulatorParams(k.text,hysteresis.text);
+                    AppModel.reflowController.setRegulatorParams(kCoef.text,hysteresis.text);
                     regulatorSettingsPopup.close();
                 }
             }
@@ -104,5 +106,26 @@ Popup
                 }
             }
         }
+    }
+
+    SharinganLoader
+    {
+        radius:30
+        visible:!settingsLoaded;
+        anchors.centerIn:parent;
+    }
+
+    Component.onCompleted:
+    {
+        AppModel.reflowController.requestRegulatorParams()
+            .then((result)=>{
+                if(!result.hysteresis && !result.k)
+                    return;
+
+                regulatorSettingsPopup.settingsLoaded = true
+                hysteresis.text=result.hysteresis;
+                kCoef.text = result.k;
+            }
+        );
     }
 }

@@ -4,6 +4,10 @@
 #include <presetslistmodel.h>
 #include <reflow_process_controller/reflow_controller.hpp>
 #include <reflow_rest_client/reflow_client.hpp>
+
+#include <qcoro/qml/qcoroqml.h>
+#include <qcoro/qml/qcoroqmltask.h>
+
 namespace AppSetup
 {
 
@@ -26,6 +30,7 @@ public:
         PresetsListModel::registerQmlType();
         Reflow::ProcessController::registerQmlType();
         Reflow::Client::Stage::registerQmlType();
+        QCoro::Qml::registerTypes();
     }
 
     void addContextProperties(QQmlApplicationEngine& _qmlEngine)
